@@ -1,0 +1,2 @@
+model_checkpoint_path: "/output/pygame_catch_dql_bayesian_2A/model"
+all_model_checkpoint_paths: "/output/pygame_catch_dql_bayesian_2A/model"
