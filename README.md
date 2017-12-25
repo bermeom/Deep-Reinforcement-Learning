@@ -53,7 +53,7 @@ Some Results:
 
 ## Bibliography
 
-- [Bibliografy](docs/Bibliografy.md)
+- [Bibliography](docs/Bibliography.md)
 
 ## Acknowledgement
 
