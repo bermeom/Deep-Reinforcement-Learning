@@ -1,6 +1,7 @@
-
-from sources.source import source
+import signal
+import sys
 import importlib
+from sources.source import source
 
 ##### SOURCE PYGAME
 class source_pygame( source ):
@@ -11,6 +12,12 @@ class source_pygame( source ):
         source.__init__( self )
         module = importlib.import_module( 'sources.pygames.' + game )
         self.env = getattr( module , game )()
+
+        def signal_handler(signal, frame):
+            print('\nProgram closed!')
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signal_handler)
 
     ### START SIMULATION
     def start( self ):

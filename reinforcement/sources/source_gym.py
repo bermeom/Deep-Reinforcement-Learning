@@ -1,7 +1,7 @@
-
-from sources.source import source
-import importlib
+import signal
+import sys
 import gym
+from sources.source import source
 from gym import wrappers
 
 ##### SOURCE PYGAME
@@ -13,6 +13,12 @@ class source_gym( source ):
         source.__init__( self )
         self.env = gym.make( game )
         #self.env = wrappers.Monitor(self.env, ".") #record
+
+        def signal_handler(signal, frame):
+            print('\nProgram closed!')
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signal_handler)
 
     ### START SIMULATION
     def start( self ):
