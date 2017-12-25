@@ -6,6 +6,7 @@ class player_PPO_1A( player_PPO_1 ):
 
     LEARNING_RATE = 1e-4
     UPDATE_SIZE   = 10
+    BATCH_SIZE    = 64
 
     ### __INIT__
     def __init__( self ):
@@ -22,10 +23,11 @@ class player_PPO_1A( player_PPO_1 ):
         Critic.addInput( shape = [ None, self.obsv_shape[0] ], name='Observation' )
 
         Critic.setLayerDefaults( type = tb.layers.fully,
-                                 activation = tb.activs.relu )
+                                 activation = tb.activs.tanh )
 
         Critic.addLayer( out_channels = 64, input = 'Observation' )
-        Critic.addLayer( out_channels = 1,  name = 'Value' )
+        Critic.addLayer( out_channels = 64 )
+        Critic.addLayer( out_channels = 1,  name = 'Value' , activation = None )
 
         # Actor
 
@@ -45,7 +47,7 @@ class player_PPO_1A( player_PPO_1 ):
         a_mu     = tf.multiply( Actor.tensor( 'mu' ), self.range_actions )
         a_sigma  = Actor.tensor( 'sigma' )
         a_dist   = tf.distributions.Normal( a_mu, a_sigma )
-        a_action = tf.squeeze( a_dist.sample( self.num_actions ), [0] )
+        a_action = a_dist.sample( 1 )
 
         Actor.addInput( tensor = a_action, name = 'Output')
 
@@ -63,10 +65,3 @@ class player_PPO_1A( player_PPO_1 ):
 
         Old.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu' )
         Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'sigma' )
-
-        o_mu     = tf.multiply( Old.tensor( 'mu' ), self.range_actions )
-        o_sigma  = Old.tensor( 'sigma' )
-        o_dist   = tf.distributions.Normal( o_mu, o_sigma )
-        o_action = tf.squeeze( o_dist.sample( self.num_actions ), [0] )
-
-        Old.addInput( tensor = o_action, name = 'Output' )
