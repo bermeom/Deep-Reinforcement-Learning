@@ -3,14 +3,14 @@
 ## Background
 
    Reinforcement learning is learning what to do to map situations to actions in an environment as to maximize a reward.  
-   The learner is not told which actions to take, but instead must discover which actions yield the most reward by trying them (interacting with the environment).  
-   A reinforcement learning agent interacts with its environment formulated as a Markov Decision Process (MDP): At each time *t*, the agent receives an observation *o(t)*, which typically includes the reward *r(t)*. It then chooses an action a *a(t)* from the set of available actions available, which is subsequently sent to the environment. The environment moves to a new state *s(t+1)* and the reward *r(t+1)* associated with the transition *s(t) , a(t), s(t+1)* is determined. The goal of a reinforcement learning agent is to collect as much reward as possible.
+   The learner is not told which actions to take, but instead must discover which actions yield the most reward by trial and error.  
+   A reinforcement learning agent interacts with its environment formulated as a Markov Decision Process (MDP): At each time *t*, the agent receives an observation *o(t)*, and a reward *r(t)*. It then chooses an action a *a(t)*, which is sent to the environment. The environment moves to a new state *s(t+1)*. The goal of a reinforcement learning agent is to collect as much reward as possible.
 
 ![Picture](http://web.stanford.edu/class/cs234/images/header2.png)
 
 ## Tensorblock
 
-Tensorblock is a Google's TensorFlow API, developed by Vitor Guizilini to facilitate the implementation of Machine Learning Algorithms: [BitBucket/TensorBlock](https://bitbucket.org/vguizilini/tensorblock/overview).  
+Tensorblock is an API to facilitate the implementation of Machine Learning Algorithms using TensorFlow: [BitBucket/TensorBlock](https://bitbucket.org/vguizilini/tensorblock/overview).  
 
 See the documentation: [TensorBlock](docs/TensorBlock.md)
 
@@ -18,8 +18,8 @@ See the documentation: [TensorBlock](docs/TensorBlock.md)
 
 The environments currently supported are:
 
-- Gym 
-- Gym Mujoco
+- OpenAI's Gym 
+- OpenAI's Gym MuJoCo
 - PyGame
 - Unity Machine Learning
 
