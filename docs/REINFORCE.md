@@ -2,19 +2,15 @@
 
 - REINFORCE  
 
-	- [player_reinforce_1](../reinforcement/players/player_reinforce_1.py)
-	- [player_reinforce_1A](../reinforcement/players/player_reinforce_1A.py)  
+	- [player_reinforce_1](../reinforcement/players/player_reinforce_1.py) and [player_reinforce_1A](../reinforcement/players/player_reinforce_1A.py)  
 
-	- [player_reinforce_2](../reinforcement/players/player_reinforce_2.py)
-	- [player_reinforce_2A](../reinforcement/players/player_reinforce_2A.py)  
+	- [player_reinforce_2](../reinforcement/players/player_reinforce_2.py) and [player_reinforce_2A](../reinforcement/players/player_reinforce_2A.py)  
 
-	- [player_reinforce_rnn_1](../reinforcement/players/player_reinforce_rnn_1.py)
-	- [player_reinforce_rnn_1A](../reinforcement/players/player_reinforce_rnn_1A.py)  
+	- [player_reinforce_rnn_1](../reinforcement/players/player_reinforce_rnn_1.py) and [player_reinforce_rnn_1A](../reinforcement/players/player_reinforce_rnn_1A.py)  
 
-	- [player_reinforce_rnn](../reinforcement/players/player_reinforce_rnn_2.py)
-	- [player_reinforce_rnn_2A](../reinforcement/players/player_reinforce_rnn_2A.py)  
+	- [player_reinforce_rnn](../reinforcement/players/player_reinforce_rnn_2.py) and [player_reinforce_rnn_2A](../reinforcement/players/player_reinforce_rnn_2A.py)  
 
-Algorithms '1A' features only MLP;  '2A' features Convolutional Neural Networks;  'rnn' features LSTM Recurrent Neural Networks.  
+*1A* features only MLP;  *2A* features Conv. Nets.;  *rnn* features LSTM Rec. Nets.  
 It has been tested on the PyGame Catch and Gym Cartpole Environments.  
 See the results on [REINFORCE 2A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/reinforce%202A), [REINFORCE RNN 1A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/reinforce%20rnn%201A) and [REINFORCE RNN 2A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/reinforce%20rnn%202A).  
 Use [script1](../reinforcement/script1.sh) to run a trained model.  

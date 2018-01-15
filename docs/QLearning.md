@@ -7,7 +7,7 @@
 
 This implementation features Convolutional Neural Networks.  
 It has been tested on the PyGame Catch Environment.  
-See the results on [DQL 2A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/dql%20bayesian)
+See the results on [DQL 2A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/dql%20bayesian)  
 Use [script0](../reinforcement/script0.sh) to run a trained model.  
 
 ### Overview
