@@ -11,6 +11,7 @@ class source_unity( source ):
     def __init__( self, game  ):
 
         source.__init__( self )
+
         self.env = UnityEnvironment( file_name = "./sources/unity/" + game, worker_id = 0 )
         self.brain_name = self.env.brain_names[0]
         self.brain_initial_info = self.env.reset(True, None)[self.brain_name]
@@ -28,6 +29,10 @@ class source_unity( source ):
 
         return self.env.brains[self.brain_name].action_space_size * len(self.brain_initial_info.agents)
 
+    def num_agents( self ):
+
+        return len(self.brain_initial_info.agents)
+
     ### START SIMULATION
     def start( self ):
 
@@ -37,6 +42,8 @@ class source_unity( source ):
 
     ### MOVE ONE STEP
     def move( self , actn ):
+
+        actn = np.reshape( actn, [ self.num_agents(), self.num_actions() // self.num_agents() ] )
 
         brain_info = self.env.step( actn , memory = None, value = None )[self.brain_name]
 

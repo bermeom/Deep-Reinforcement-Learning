@@ -9,6 +9,8 @@ sys.path.append('..')
 import tensorblock as tb
 import numpy as np
 
+from sources.source_unity_exporter import *
+
 # PLAYER PPO
 
 class player_PPO_1(player):
@@ -21,7 +23,7 @@ class player_PPO_1(player):
         self.experiences = deque()
         self.epsilon = 0.2
         self.gamma = 0.99
-        self.lam = 0.97
+        self.lam = 0.95
 
     # CHOOSE NEXT ACTION
     def act(self, state):
@@ -32,7 +34,7 @@ class player_PPO_1(player):
     def calculate(self, state):
 
         action = self.brain.run( 'Actor/Output', [ [ 'Actor/Observation', [state] ] ] )
-        return self.create_action( np.reshape ( action, self.num_actions ) )
+        return self.create_action( np.reshape ( action,  self.num_actions ) )
 
     # PREPARE NETWORK
     def operations(self):
@@ -83,6 +85,10 @@ class player_PPO_1(player):
     # TRAIN NETWORK
     def train( self, prev_state, curr_state, actn, rewd, done, episode ):
 
+        # To export Unity 3DBall .bytes file execute this when saved trained model is in trained_models folder:
+        #export_ugraph (self.brain, "./trained_models/unity_3dball_ppo/", "3dball", "Actor/mu/MatMul")
+        #raise SystemExit(0)
+
         # Store New Experience Until Done
 
         self.experiences.append( (prev_state, curr_state, actn, rewd, done) )
@@ -106,40 +112,44 @@ class player_PPO_1(player):
             prev_values = np.squeeze( self.brain.run( 'Critic/Value' , [ [ 'Critic/Observation', prev_states  ] ] ) )
             curr_values = np.squeeze( self.brain.run( 'Critic/Value' , [ [ 'Critic/Observation', curr_states  ] ] ) )
 
-            # Calculate Advantage
+            # Calculate y and Advantage
 
-            running_add = 0
-            advantage = np.zeros_like(rewards)
-            advantage = rewards + (self.gamma * curr_values) - prev_values
+            running_add_y = 0
+            running_add_a = 0
+            y          = np.zeros_like(rewards)
+            advantage  = rewards + (self.gamma * curr_values) - prev_values
             for t in reversed ( range( 0, len( advantage ) ) ):
-                if dones[t]: running_add = 0
-                running_add  = running_add * self.gamma * self.lam + advantage[t]
-                advantage[t] = running_add
-
-            advantage = np.expand_dims(advantage,1)
+                if dones[t]:
+                    curr_values[t] = 0
+                    running_add_a  = 0
+                running_add_y  = curr_values[t] * self.gamma            + rewards   [t]
+                running_add_a  = running_add_a  * self.gamma * self.lam + advantage [t]
+                y         [t] = running_add_y
+                advantage [t] = running_add_a
+            y         = np.expand_dims( y        , 1 )
+            advantage = np.expand_dims( advantage, 1 )
 
             # Update Old Pi
 
-            _ = self.brain.run( ['AssignOld'], [] )
+            assign = self.brain.run( ['AssignOld'], [] )
 
             # Get Old Mu and Sigma
 
             o_mu, o_sigma = self.brain.run( [ 'Old/mu', 'Old/sigma' ], [ [ 'Old/Observation', prev_states ] ] )
 
-            # Update Actor
+            # Update
 
-            [ self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states    ],
-                                                      [ 'O_mu',               o_mu           ],
-                                                      [ 'O_sigma',            o_sigma        ],
-                                                      [ 'Actions',            actions        ],
-                                                      [ 'Advantage',          advantage      ],
-                                                      [ 'Epsilon',            [self.epsilon] ] ] ) for _ in range (self.UPDATE_SIZE) ]
+            for _ in range (self.UPDATE_SIZE):
 
-            # Update Critic
+                self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states    ],
+                                                        [ 'O_mu',               o_mu           ],
+                                                        [ 'O_sigma',            o_sigma        ],
+                                                        [ 'Actions',            actions        ],
+                                                        [ 'Advantage',          advantage      ],
+                                                        [ 'Epsilon',            [self.epsilon] ] ] )
 
-            [ self.brain.run( [ 'CriticOptimizer' ], [ ['Critic/Observation', prev_states ],
-                                                       ['Advantage',          advantage   ] ] ) for _ in range (self.UPDATE_SIZE) ]
-
+                self.brain.run( [ 'CriticOptimizer' ], [ [ 'Critic/Observation', prev_states ],
+                                                         [ 'Advantage',          y           ] ] )
 
             # Reset
 

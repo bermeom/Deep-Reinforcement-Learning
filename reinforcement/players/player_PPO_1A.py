@@ -4,9 +4,9 @@ import tensorflow as tf
 ##### PLAYER PPO
 class player_PPO_1A( player_PPO_1 ):
 
-    LEARNING_RATE = 1e-4
-    UPDATE_SIZE   = 10
-    BATCH_SIZE    = 64
+    LEARNING_RATE = 3e-4
+    UPDATE_SIZE   = 5
+    BATCH_SIZE    = 2048
 
     ### __INIT__
     def __init__( self ):
@@ -27,7 +27,7 @@ class player_PPO_1A( player_PPO_1 ):
 
         Critic.addLayer( out_channels = 64, input = 'Observation' )
         Critic.addLayer( out_channels = 64 )
-        Critic.addLayer( out_channels = 1,  name = 'Value' , activation = None )
+        Critic.addLayer( out_channels = 1,  name = 'Value', activation = None )
 
         # Actor
 
@@ -41,10 +41,10 @@ class player_PPO_1A( player_PPO_1 ):
         Actor.addLayer( out_channels = 64 , input = 'Observation' )
         Actor.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu' )
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu', activation = None)
         Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'sigma' )
 
-        a_mu     = tf.multiply( Actor.tensor( 'mu' ), self.range_actions )
+        a_mu     = Actor.tensor( 'mu' )
         a_sigma  = Actor.tensor( 'sigma' )
         a_dist   = tf.distributions.Normal( a_mu, a_sigma )
         a_action = a_dist.sample( 1 )
@@ -63,5 +63,5 @@ class player_PPO_1A( player_PPO_1 ):
         Old.addLayer( out_channels = 64 , input = 'Observation' )
         Old.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu' )
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu', activation = None )
         Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'sigma' )
