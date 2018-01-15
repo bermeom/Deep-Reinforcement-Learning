@@ -1,14 +1,35 @@
 ### Enviroments
 
-- Raw Inputs:  
-	 - Pygame Chase  
-	 - Gym CartPole  
-	 - Gym Continuous Mountain Car  
-	 - Gym Mujoco Environments  
-	 - Unity Machine Learning  
+The suppported Environments are in the [sources](../reinforcement/sources) folder.  
+The [source.py](../reinforcement/sources/source.py) contains the parent class.  
+Currently, there are interfaces with [OpenAI's Gym](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_gym.py), [Pygame](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_pygame.py) and [Unity ML](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_unity.py).  
 
-- Image Inputs:  
-	 - Pygame Catch  
-	 - Gym Breakout  
-	 - Gym Pong  
-	 - Unity Machine Learning  
+The Environments in the folder are:
+
+Raw Inputs:  
+
+	- Pygame
+		- Chase
+	- Gym
+		- CartPole  
+		- Continuous Mountain Car
+		- Mujoco
+			- Pendulum
+			- HalfCheetah
+			- Hopper
+			- Reacher
+	- Unity Machine Learning
+		- 3D Ball
+		- Continuous Catcher
+		- Exporter (to export the .bytes file)  
+
+
+Raw Image Inputs:  
+
+	- Pygame
+		- Catch
+	- Gym
+		- Breakout
+		- Pong  
+
+
