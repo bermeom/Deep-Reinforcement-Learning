@@ -2,17 +2,18 @@ from players.player_DDPG_1 import *
 import tensorflow as tf
 import numpy as np
 
-##### PLAYER DDPG
+
+# PLAYER DDPG
 class player_DDPG_1A( player_DDPG_1 ):
 
-    EXPERIENCES_LEN = 1e6
-    BATCH_SIZE = 264
-    STEPS_BEFORE_TRAIN = 400
-    NUM_FRAMES = 1
-
-    LEARNING_RATE = 1e-4
-    TAU = 0.001
-    REWARD_DISCOUNT = 0.99
+    EXPERIENCES_LEN    = 1e6
+    BATCH_SIZE         = 128
+    STEPS_BEFORE_TRAIN = 5000
+    NUM_FRAMES         = 1
+    C_LEARNING_RATE    = 1e-3
+    A_LEARNING_RATE    = 1e-4
+    TAU                = 0.001
+    REWARD_DISCOUNT    = 0.99
 
     ### __INIT__
     def __init__( self ):
@@ -20,53 +21,50 @@ class player_DDPG_1A( player_DDPG_1 ):
         player_DDPG_1.__init__( self )
 
     # PROCESS OBSERVATION
-
     def process(self, obsv):
 
-        return np.stack( tuple(self.obsv_list[i] for i in range(self.NUM_FRAMES)), axis=1 )
+        return np.stack( tuple(self.obsv_list[i] for i in range(self.NUM_FRAMES)), axis = 1 )
 
-    ### PREPARE NETWORK
+    # PREPARE NETWORK
     def network( self ):
 
         # Critic ------------------------------------------------------------
 
         NormalCritic = self.brain.addBlock( 'NormalCritic' )
 
-        NormalCritic.addInput( shape=[ None, self.obsv_shape[0], self.NUM_FRAMES ],
-                               name='Observation')
+        NormalCritic.addInput( shape = [ None, self.obsv_shape[0], self.NUM_FRAMES ], name  = 'Observation' )
+        NormalCritic.addInput( shape = [ None, self.num_actions ], name  = 'Actions' )
 
-        NormalCritic.addInput( shape=[ None, self.num_actions ],
-                               name='Actions')
+        NormalCritic.setLayerDefaults( type       = tb.layers.hlfully,
+                                       activation = tb.activs.relu,
+                                       bias       = False)
 
-        NormalCritic.setLayerDefaults( type = tb.layers.hlfully, activation = tb.activs.relu, bias = False)
+        NormalCritic.addLayer( input = 'Observation',out_channels = 128, name = 'Hidden1' )
 
-        NormalCritic.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1')
+        H1 = NormalCritic.tensor( 'Hidden1' )
+        H2 = NormalCritic.tensor( 'Actions' )
+        H3 = tf.concat( [H1,H2], 1 )
+        NormalCritic.addInput( tensor = H3, name = 'Hidden3' )
 
-        H1 = NormalCritic.tensor('Hidden1')
-        H2 = NormalCritic.tensor('Actions')
-        H3 = tf.concat([H1,H2],1)
-        NormalCritic.addInput( tensor = H3, name = 'Hidden3')
-
-        NormalCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4' ) #200
+        NormalCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4' )
         NormalCritic.addLayer( input = 'Hidden4', out_channels = 1, activation = None , name = 'Value' )
 
         # Critic Target Network
 
         TargetCritic = self.brain.addBlock( 'TargetCritic' )
 
-        TargetCritic.addInput( shape=[ None, self.obsv_shape[0], self.NUM_FRAMES ],
-                               name='Observation')
+        TargetCritic.addInput( shape = [ None, self.obsv_shape[0], self.NUM_FRAMES ], name  = 'Observation')
+        TargetCritic.addInput( shape = [ None, self.num_actions ], name  = 'Actions' )
 
-        TargetCritic.addInput( shape=[ None, self.num_actions ],
-                               name='Actions' )
-
-        TargetCritic.setLayerDefaults( type = tb.layers.hlfully, activation = tb.activs.relu, bias = False )
+        TargetCritic.setLayerDefaults( type       = tb.layers.hlfully,
+                                       activation = tb.activs.relu,
+                                       bias       = False )
 
         TargetCritic.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1' )
 
-        H1 = TargetCritic.tensor('Hidden1')
-        H2 = TargetCritic.tensor('Actions')
-        H3 = tf.concat([H1,H2],1)
+        H1 = TargetCritic.tensor ('Hidden1' )
+        H2 = TargetCritic.tensor( 'Actions' )
+        H3 = tf.concat( [H1,H2],1 )
         TargetCritic.addInput( tensor = H3, name = 'Hidden3')
 
         TargetCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4' )
@@ -78,18 +76,18 @@ class player_DDPG_1A( player_DDPG_1 ):
 
         NormalActor.addInput( shape=[ None, self.obsv_shape[0], self.NUM_FRAMES ], name='Observation' )
 
-        NormalActor.setLayerDefaults( type = tb.layers.hlfully, activation = tb.activs.relu, bias = False )
+        NormalActor.setLayerDefaults( type       = tb.layers.hlfully,
+                                      activation = tb.activs.relu,
+                                      bias       = False )
 
         NormalActor.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1' )
-
-        NormalActor.addLayer( input = 'Hidden1', out_channels = 200, name = 'Hidden2' )
-
-        NormalActor.addLayer( input = 'Hidden2', out_channels = self.num_actions,
-                              activation = tb.activs.tanh, name = 'Out',min = -0.003, max = 0.003)
+        NormalActor.addLayer( input = 'Hidden1',     out_channels = 200, name = 'Hidden2' )
+        NormalActor.addLayer( input = 'Hidden2',     out_channels = self.num_actions,
+                              activation = tb.activs.tanh, name = 'Out', min = -0.003, max = 0.003)
 
         out = NormalActor.tensor('Out')
-        out = tf.multiply(out,self.range_actions)
-        NormalActor.addInput( tensor=out, name = 'Output')
+        out = tf.multiply( out, self.range_actions )
+        NormalActor.addInput( tensor = out, name = 'Output')
 
         # Actor Target Network
 
@@ -98,15 +96,15 @@ class player_DDPG_1A( player_DDPG_1 ):
 
         TargetActor.addInput( shape=[ None, self.obsv_shape[0], self.NUM_FRAMES ], name='Observation' )
 
-        TargetActor.setLayerDefaults( type = tb.layers.hlfully,activation = tb.activs.relu, bias = False )
+        TargetActor.setLayerDefaults( type       = tb.layers.hlfully,
+                                      activation = tb.activs.relu,
+                                      bias       = False )
 
         TargetActor.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1' )
-
-        TargetActor.addLayer( input = 'Hidden1', out_channels = 200, name = 'Hidden2' )
-
-        TargetActor.addLayer( input = 'Hidden2', out_channels = self.num_actions,
+        TargetActor.addLayer( input = 'Hidden1',     out_channels = 200, name = 'Hidden2' )
+        TargetActor.addLayer( input = 'Hidden2',     out_channels = self.num_actions,
                               activation = tb.activs.tanh, name = 'Out', min = -0.003, max = 0.003)
 
         out = TargetActor.tensor('Out')
-        out = tf.multiply(out,self.range_actions)
-        TargetActor.addInput( tensor=out, name = 'Output')
+        out = tf.multiply( out, self.range_actions )
+        TargetActor.addInput( tensor = out, name = 'Output')

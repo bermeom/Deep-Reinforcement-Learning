@@ -11,8 +11,8 @@ import numpy as np
 
 import tensorflow as tf
 
-# PLAYER REINFORCE_MONTE_CARLO_ON_POLICY_POLICY_GRADIENT
 
+# PLAYER REINFORCE RNN
 class player_reinforce_rnn_2(player):
 
     # __INIT__
@@ -46,7 +46,6 @@ class player_reinforce_rnn_2(player):
         return self.create_action(action)
 
     # PREPARE NETWORK
-
     def operations(self):
 
         # Action Placeholders
@@ -57,21 +56,22 @@ class player_reinforce_rnn_2(player):
 
         # Operations
 
-        self.brain.addOperation(function=tb.ops.log_sum_mul,
-                                input=['Output', 'Actions'], name='Readout')
-
-        self.brain.addOperation(function=tb.ops.adv_mul,
-                                input=['Readout', 'Target'], name='Cost')
+        self.brain.addOperation( function = tb.ops.pgcost,
+                                 input    = [ 'Output', 'Actions', 'Target' ],
+                                 name     = 'Cost' )
 
         # Optimizer
 
-        self.brain.addOperation(function=tb.optims.adam, input='Cost',
-                                learning_rate=self.LEARNING_RATE, name='Optimizer')
+        self.brain.addOperation( function      = tb.optims.adam,
+                                 input         = 'Cost',
+                                 learning_rate = self.LEARNING_RATE,
+                                 name          = 'Optimizer' )
 
         # TensorBoard
+
         self.brain.addSummaryScalar( input = 'Cost' )
         self.brain.addSummaryHistogram( input = 'Target' )
-        self.brain.addWriter(name = 'Writer' , dir = './' )
+        self.brain.addWriter( name = 'Writer' , dir = './' )
         self.brain.addSummary( name = 'Summary' )
         self.brain.initialize()
 
@@ -85,6 +85,7 @@ class player_reinforce_rnn_2(player):
         batchsize = len( self.experiences ) - self.NUM_FRAMES + 1
 
         # Check for Train
+
         if done:
 
             # Select Batch
@@ -124,11 +125,12 @@ class player_reinforce_rnn_2(player):
 
             # Optimize Neural Network
 
-            _,summary = self.brain.run( ['Optimizer','Summary'], [['Observation', prev_states ],
-                                                                  ['Actions',  actions        ],
-                                                                  ['Target', discounted_r     ]] )
+            _, summary = self.brain.run( ['Optimizer','Summary'], [ ['Observation', prev_states ],
+                                                                    ['Actions',  actions        ],
+                                                                    ['Target', discounted_r     ] ] )
 
             # TensorBoard
+
             self.brain.write( summary = summary, iter = episode )
 
             # Reset Batch

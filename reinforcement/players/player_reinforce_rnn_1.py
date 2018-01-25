@@ -11,8 +11,8 @@ import numpy as np
 
 import tensorflow as tf
 
-# PLAYER REINFORCE_MONTE_CARLO_ON_POLICY_POLICY_GRADIENT
 
+# PLAYER REINFORCE RNN
 class player_reinforce_rnn_1(player):
 
     # __INIT__
@@ -40,7 +40,7 @@ class player_reinforce_rnn_1(player):
             states[i] = self.experiences[j][1]
 
         states = np.expand_dims( states, 0 )
-        output = np.squeeze( self.brain.run('Output', [['Observation', states]]) )
+        output = np.squeeze( self.brain.run('Output', [ [ 'Observation', states ] ] ) )
         action = np.random.choice( np.arange(len(output)), p=output )
 
         return self.create_action(action)
@@ -57,18 +57,21 @@ class player_reinforce_rnn_1(player):
 
         # Operations
 
-        self.brain.addOperation(function=tb.ops.log_sum_mul,
-                                input=['Output', 'Actions'], name='Readout')
-
-        self.brain.addOperation(function=tb.ops.adv_mul,
-                                input=['Readout', 'Target'], name='Cost')
+        self.brain.addOperation( function = tb.ops.pgcost,
+                                 input    = [ 'Output', 'Actions', 'Target' ],
+                                 name     = 'Cost' )
 
         # Optimizer
 
-        self.brain.addOperation(function=tb.optims.adam, input='Cost',
-                                learning_rate=self.LEARNING_RATE, name='Optimizer')
+        self.brain.addOperation( function      = tb.optims.adam,
+                                 input         = 'Cost',
+                                 learning_rate = self.LEARNING_RATE,
+                                 summary       = 'Summary',
+                                 writer        = 'Writer',
+                                 name          = 'Optimizer' )
 
         # TensorBoard
+
         self.brain.addSummaryScalar( input = 'Cost' )
         self.brain.addSummaryHistogram( input = 'Target' )
         self.brain.addWriter(name = 'Writer' , dir = './' )
@@ -80,7 +83,7 @@ class player_reinforce_rnn_1(player):
 
         # Store New Experience Until Done
 
-        self.experiences.append((prev_state, curr_state, actn, rewd, done))
+        self.experiences.append( ( prev_state, curr_state, actn, rewd, done ) )
 
         batchsize = len( self.experiences ) - self.NUM_FRAMES + 1
 
@@ -122,11 +125,12 @@ class player_reinforce_rnn_1(player):
 
             # Optimize Neural Network
 
-            _,summary = self.brain.run( ['Optimizer','Summary'], [['Observation', prev_states ],
-                                                                  ['Actions',  actions        ],
-                                                                  ['Target', discounted_r     ]] )
+            _, summary = self.brain.run( ['Optimizer','Summary'], [ [ 'Observation', prev_states  ],
+                                                                    [ 'Actions',     actions      ],
+                                                                    [ 'Target',      discounted_r ] ] )
 
             # TensorBoard
+
             self.brain.write( summary = summary, iter = episode )
 
             # Reset Batch

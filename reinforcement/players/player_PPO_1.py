@@ -11,8 +11,8 @@ import numpy as np
 
 from sources.source_unity_exporter import *
 
-# PLAYER PPO
 
+# PLAYER PPO
 class player_PPO_1(player):
 
     # __INIT__
@@ -21,9 +21,6 @@ class player_PPO_1(player):
         player.__init__(self)
 
         self.experiences = deque()
-        self.epsilon = 0.2
-        self.gamma = 0.99
-        self.lam = 0.95
 
     # CHOOSE NEXT ACTION
     def act(self, state):
@@ -51,7 +48,7 @@ class player_PPO_1(player):
 
             # Critic
 
-        self.brain.addOperation( function = tb.ops.mean_squared_errorHL,
+        self.brain.addOperation( function = tb.ops.hlmean_squared_error,
                                  input    = [ 'Critic/Value','Advantage' ],
                                  name     = 'CriticCost' )
 
@@ -61,7 +58,7 @@ class player_PPO_1(player):
                                  name          = 'CriticOptimizer' )
             # Actor
 
-        self.brain.addOperation( function = tb.ops.klcost,
+        self.brain.addOperation( function = tb.ops.ppocost,
                                  input    = ['Actor/mu',
                                              'Actor/sigma',
                                              'O_mu',
@@ -95,7 +92,7 @@ class player_PPO_1(player):
 
         # Check for Train
 
-        if (len(self.experiences) >= self.BATCH_SIZE):
+        if ( len(self.experiences) >= self.BATCH_SIZE ):
 
             batch = self.experiences
 
@@ -112,21 +109,21 @@ class player_PPO_1(player):
             prev_values = np.squeeze( self.brain.run( 'Critic/Value' , [ [ 'Critic/Observation', prev_states  ] ] ) )
             curr_values = np.squeeze( self.brain.run( 'Critic/Value' , [ [ 'Critic/Observation', curr_states  ] ] ) )
 
-            # Calculate y and Advantage
+            # Calculate Generalized Advantage Estimation
 
             running_add_y = 0
             running_add_a = 0
-            y          = np.zeros_like(rewards)
-            advantage  = rewards + (self.gamma * curr_values) - prev_values
+            y             = np.zeros_like(rewards)
+            advantage     = rewards + (self.GAMMA * curr_values) - prev_values
             for t in reversed ( range( 0, len( advantage ) ) ):
                 if dones[t]:
                     curr_values[t] = 0
                     running_add_a  = 0
-                running_add_y  = curr_values[t] * self.gamma            + rewards   [t]
-                running_add_a  = running_add_a  * self.gamma * self.lam + advantage [t]
-                y         [t] = running_add_y
-                advantage [t] = running_add_a
-            y         = np.expand_dims( y        , 1 )
+                running_add_y  = curr_values[t] * self.GAMMA            + rewards   [t]
+                running_add_a  = running_add_a  * self.GAMMA * self.LAM + advantage [t]
+                y         [t]  = running_add_y
+                advantage [t]  = running_add_a
+            y         = np.expand_dims( y,         1 )
             advantage = np.expand_dims( advantage, 1 )
 
             # Update Old Pi
@@ -146,7 +143,7 @@ class player_PPO_1(player):
                                                         [ 'O_sigma',            o_sigma        ],
                                                         [ 'Actions',            actions        ],
                                                         [ 'Advantage',          advantage      ],
-                                                        [ 'Epsilon',            [self.epsilon] ] ] )
+                                                        [ 'Epsilon',            [self.EPSILON] ] ] )
 
                 self.brain.run( [ 'CriticOptimizer' ], [ [ 'Critic/Observation', prev_states ],
                                                          [ 'Advantage',          y           ] ] )

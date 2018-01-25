@@ -10,8 +10,8 @@ sys.path.append('..')
 import tensorblock as tb
 import numpy as np
 
-# PLAYER DDPG
 
+# PLAYER DDPG
 class player_DDPG_1(player):
 
     # __INIT__
@@ -19,10 +19,10 @@ class player_DDPG_1(player):
 
         player.__init__(self)
 
-        self.experiences = deque()
+        self.experiences     = deque()
         self.num_stored_obsv = self.NUM_FRAMES
-        self.noise_state = 0
-        self.dt = 0.01
+        self.noise_state     = 0
+        self.dt              = 0.01
 
         # Copy initial weights (need to find better way)
 
@@ -30,8 +30,8 @@ class player_DDPG_1(player):
 
         normal_critic_vars = [var for var in vars if 'NormalCritic' in var.name]
         target_critic_vars = [var for var in vars if 'TargetCritic' in var.name]
-        normal_actor_vars = [var for var in vars if 'NormalActor' in var.name]
-        target_actor_vars = [var for var in vars if 'TargetActor' in var.name]
+        normal_actor_vars  = [var for var in vars if 'NormalActor'  in var.name]
+        target_actor_vars  = [var for var in vars if 'TargetActor'  in var.name]
 
         update_critic = [target_critic_vars[i].assign(normal_critic_vars[i])
                             for i in range(len(target_critic_vars))]
@@ -44,7 +44,6 @@ class player_DDPG_1(player):
 
         x = self.noise_state
         dx =  self.dt * theta * (mu - self.noise_state) + sigma * np.random.randn(self.num_actions) *  np.sqrt(self.dt)
-
         self.noise_state = x + dx
 
         return self.noise_state
@@ -58,8 +57,7 @@ class player_DDPG_1(player):
     def calculate(self, state):
 
         action = self.brain.run( 'NormalActor/Output', [ [ 'NormalActor/Observation', [state] ] ] )
-        noise =  self.OU( mu = 0, theta = 0.15 , sigma = 0.2 )
-
+        noise  = self.OU( mu = 0, theta = 0.15 , sigma = 0.2 )
         action = action[0] + noise
 
         return self.create_action( np.reshape( action, [self.num_actions] ) )
@@ -69,36 +67,39 @@ class player_DDPG_1(player):
 
         # Placeholders
 
-        self.brain.addInput( shape = [ None,1 ], name = 'Advantage', dtype = tf.float32 )
-
-        self.brain.addInput( shape = [ None,self.num_actions ], name = 'ActionGrads', dtype = tf.float32 )
+        self.brain.addInput( shape = [ None, 1                ], name = 'TDTarget',    dtype = tf.float32 )
+        self.brain.addInput( shape = [ None, self.num_actions ], name = 'ActionGrads', dtype = tf.float32 )
 
         # Operations
 
-        self.brain.addOperation( function = tb.ops.assign, input = [],
-                                 name = 'Assign' )
+        self.brain.addOperation( function = tb.ops.assign, input = [], name = 'Assign' )
+
             # Critic
 
-        self.brain.addOperation( function = tb.ops.get_grads, input=['NormalCritic/Value','NormalCritic/Actions'],
-                                 summary = 'Summary',
-                                 writer = 'Writer',
-                                 name = 'GetGrads' )
+        self.brain.addOperation( function = tb.ops.get_grads,
+                                 input = [ 'NormalCritic/Value', 'NormalCritic/Actions' ],
+                                 summary  = 'Summary',
+                                 writer   = 'Writer',
+                                 name     = 'GetGrads' )
 
-        self.brain.addOperation( function = tb.ops.mean_squared_errorHL, # this mse gets the L2 reg on fullyhl layers
-                                 input = [ 'NormalCritic/Value','Advantage' ],
-                                 name = 'CriticCost' )
+        self.brain.addOperation( function = tb.ops.hlmean_squared_error,
+                                 input    = [ 'NormalCritic/Value', 'TDTarget' ],
+                                 name     = 'CriticCost' )
 
-        self.brain.addOperation( function = tb.optims.adam, input = 'CriticCost',
-                                 learning_rate = self.LEARNING_RATE*10,
-                                 name = 'CriticOptimizer' )
+        self.brain.addOperation( function      = tb.optims.adam,
+                                 input         = 'CriticCost',
+                                 learning_rate = self.C_LEARNING_RATE,
+                                 name          = 'CriticOptimizer' )
             # Actor
 
-        self.brain.addOperation( function=tb.ops.combine_grads, input = [ 'NormalActor/Output','ActionGrads' ],
-                                 name = 'CombineGrads' )
+        self.brain.addOperation( function = tb.ops.combine_grads,
+                                 input    = [ 'NormalActor/Output', 'ActionGrads' ],
+                                 name     = 'CombineGrads' )
 
-        self.brain.addOperation( function=tb.optims.adam_apply, input = [ 'CombineGrads' ],
-                                 learning_rate = self.LEARNING_RATE,
-                                 name = 'ActorOptimizer' )
+        self.brain.addOperation( function      = tb.optims.adam_apply,
+                                 input         = [ 'CombineGrads' ],
+                                 learning_rate = self.A_LEARNING_RATE,
+                                 name          = 'ActorOptimizer' )
 
         # TensorBoard
 
@@ -129,15 +130,14 @@ class player_DDPG_1(player):
 
             prev_states = [d[0] for d in batch]
             curr_states = [d[1] for d in batch]
-            actions =     [d[2] for d in batch]
-            rewards =     [d[3] for d in batch]
-            dones =       [d[4] for d in batch]
+            actions     = [d[2] for d in batch]
+            rewards     = [d[3] for d in batch]
+            dones       = [d[4] for d in batch]
 
             # States Values
 
-            target_actns = self.brain.run( 'TargetActor/Output', [ [ 'TargetActor/Observation', curr_states ] ] )
-
-            next_values = self.brain.run( 'TargetCritic/Value' , [ [ 'TargetCritic/Observation', curr_states  ],
+            target_actns = self.brain.run( 'TargetActor/Output', [ [ 'TargetActor/Observation',  curr_states  ] ] )
+            next_values  = self.brain.run( 'TargetCritic/Value', [ [ 'TargetCritic/Observation', curr_states  ],
                                                                    [ 'TargetCritic/Actions',     target_actns ] ] )
 
             # Calculate Expected Reward
@@ -155,12 +155,12 @@ class player_DDPG_1(player):
 
             _ = self.brain.run( ['CriticOptimizer'], [ [ 'NormalCritic/Observation', prev_states      ],
                                                        [ 'NormalCritic/Actions',     actions          ],
-                                                       [ 'Advantage',                expected_rewards ] ] )
+                                                       [ 'TDTarget',                 expected_rewards ] ] )
             # Get New Actions
 
-            new_a = self.brain.run( 'NormalActor/Output', [ ['NormalActor/Observation', prev_states] ] )
+            new_a = self.brain.run( 'NormalActor/Output', [ ['NormalActor/Observation', prev_states ] ] )
 
-            # Get Critic Grads w.r.t. New Actions
+            # Get Critic Grads wrt New Actions
 
             grads = self.brain.run( ['GetGrads'], [ [ 'NormalCritic/Observation', prev_states],
                                                     [ 'NormalCritic/Actions',     new_a      ] ] )
@@ -169,7 +169,7 @@ class player_DDPG_1(player):
 
             _, s = self.brain.run( ['GetGrads','Summary'], [ [ 'NormalCritic/Observation', prev_states      ],
                                                              [ 'NormalCritic/Actions',     new_a            ],
-                                                             [ 'Advantage',                expected_rewards ],
+                                                             [ 'TDTarget',                 expected_rewards ],
                                                              [ 'NormalActor/Observation',  prev_states      ] ] )
             # Optimize Actor
 

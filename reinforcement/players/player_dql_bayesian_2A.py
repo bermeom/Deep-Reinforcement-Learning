@@ -1,19 +1,20 @@
 from players.player_dql_bayesian_2 import *
 
-##### PLAYER DQL BAYESIAN 2A
+
+# PLAYER DQL BAYESIAN
 class player_dql_bayesian_2A( player_dql_bayesian_2 ):
 
-    NUM_FRAMES = 2
-    BATCH_SIZE = 100
+    NUM_FRAMES = 1
+    BATCH_SIZE = 512
 
-    LEARNING_RATE = 1e-4
+    LEARNING_RATE   = 3e-4
     REWARD_DISCOUNT = 0.99
 
-    START_RANDOM_PROB = 1.00
-    FINAL_RANDOM_PROB = 0.05
+    START_RANDOM_PROB        = 1.00
+    FINAL_RANDOM_PROB        = 0.05
     NUM_EXPLORATION_EPISODES = 200
 
-    EXPERIENCES_LEN = 100000
+    EXPERIENCES_LEN    = 100000
     STEPS_BEFORE_TRAIN = 1000
 
     ### __INIT__
@@ -24,7 +25,7 @@ class player_dql_bayesian_2A( player_dql_bayesian_2 ):
     # PROCESS OBSERVATION
     def process(self, obsv):
 
-        return np.stack(tuple(self.obsv_list[i] for i in range(self.NUM_FRAMES)), axis=2)
+        return np.stack( tuple( self.obsv_list[i] for i in range(self.NUM_FRAMES) ), axis=2 )
 
     # PREPARE NETWORK
     def network(self):
@@ -36,18 +37,25 @@ class player_dql_bayesian_2A( player_dql_bayesian_2 ):
 
         # Convolutional Layers
 
-        self.brain.setLayerDefaults(type=tb.layers.conv2d,
-                                    activation=tb.activs.relu, pooling=2,
-                                    weight_stddev=0.01, bias_stddev=0.01)
+        self.brain.setLayerDefaults( type          = tb.layers.conv2d,
+                                     activation    = tb.activs.relu,
+                                     pooling       = 2,
+                                     weight_stddev = 0.01,
+                                     bias_stddev   = 0.01)
 
-        self.brain.addLayer(out_channels=32, ksize=8, strides=4, input='Observation')
-        self.brain.addLayer(out_channels=64, ksize=4, strides=2)
-        self.brain.addLayer(out_channels=64, ksize=3, strides=1)
+        self.brain.addLayer( out_channels=32, ksize=8, strides=4, input='Observation' )
+        self.brain.addLayer( out_channels=64, ksize=4, strides=2 )
+        self.brain.addLayer( out_channels=64, ksize=3, strides=1 )
 
         # Fully Connected Layers
 
-        self.brain.setLayerDefaults(type=tb.layers.fully)
+        self.brain.setLayerDefaults( type       = tb.layers.fully,
+                                     activation = tb.activs.relu )
 
-        self.brain.addLayer(out_channels=256, dropout=True, dropout_name='Drop')
-        self.brain.addLayer(out_channels=self.num_actions,
-                            activation=None, name='Output')
+        self.brain.addLayer( out_channels = 256,
+                             dropout      = True,
+                             dropout_name = 'Drop')
+
+        self.brain.addLayer( out_channels = self.num_actions,
+                             activation   = None,
+                             name         = 'Output')

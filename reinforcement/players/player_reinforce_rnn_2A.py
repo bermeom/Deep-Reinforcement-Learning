@@ -1,12 +1,12 @@
 from players.player_reinforce_rnn_2 import *
 import tensorflow as tf
 
-##### PLAYER REINFORCE RNN
+
+# PLAYER REINFORCE RNN
 class player_reinforce_rnn_2A( player_reinforce_rnn_2 ):
 
-    NUM_FRAMES = 3
-
-    LEARNING_RATE = 1e-4
+    NUM_FRAMES      = 3
+    LEARNING_RATE   = 1e-4
     REWARD_DISCOUNT = 0.99
 
     ### __INIT__
@@ -14,7 +14,7 @@ class player_reinforce_rnn_2A( player_reinforce_rnn_2 ):
 
         player_reinforce_rnn_2.__init__( self )
 
-    ### PREPARE NETWORK
+    # PREPARE NETWORK
     def network( self ):
 
         # Input Placeholder
@@ -40,25 +40,35 @@ class player_reinforce_rnn_2A( player_reinforce_rnn_2 ):
 
         #  Fully
 
-        self.brain.addLayer( type = tb.layers.flatten, name = 'Flatten')
-        self.brain.addLayer( type = tb.layers.fully, out_channels = 256 ,
-                             activation = tb.activs.elu, name = 'OutputFully' )
+        self.brain.addLayer( type = tb.layers.flatten,
+                             name = 'Flatten' )
+
+        self.brain.addLayer( type = tb.layers.fully,
+                             out_channels = 256 ,
+                             activation   = tb.activs.elu,
+                             name         = 'OutputFully' )
 
         # Reshape OutputFully to RNN (B*T,C)->(B,T,C)
 
         self.outfully = tf.reshape( self.brain.tensor('OutputFully') , [-1, self.NUM_FRAMES, 256] )
+
         self.brain.addInput( tensor = self.outfully, name = 'InputRNN' )
 
         # RNN Layers
 
-        self.brain.addLayer( input = 'InputRNN', type = tb.layers.rnn, cell_type  = 'LSTM',
-                             num_cells = 2, out_channels = 256,
-                             name = 'RNN')
+        self.brain.addLayer( input        = 'InputRNN',
+                             type         = tb.layers.rnn,
+                             cell_type    = 'LSTM',
+                             num_cells    = 2,
+                             out_channels = 256,
+                             name         = 'RNN')
 
         # Fully Connected Layers
 
-        self.brain.setLayerDefaults( type = tb.layers.fully,
-                                     weight_stddev = 0.01 , bias_stddev = 0.01 )
+        self.brain.setLayerDefaults( type          = tb.layers.fully,
+                                     weight_stddev = 0.01 ,
+                                     bias_stddev   = 0.01 )
 
         self.brain.addLayer( out_channels = self.num_actions,
-                             activation = tb.activs.softmax , name = 'Output' )
+                             activation   = tb.activs.softmax,
+                             name         = 'Output' )

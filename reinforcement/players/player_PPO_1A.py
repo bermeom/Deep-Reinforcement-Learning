@@ -1,12 +1,16 @@
 from players.player_PPO_1 import *
 import tensorflow as tf
 
-##### PLAYER PPO
+
+# PLAYER PPO
 class player_PPO_1A( player_PPO_1 ):
 
     LEARNING_RATE = 3e-4
     UPDATE_SIZE   = 5
     BATCH_SIZE    = 2048
+    EPSILON       = 0.2
+    GAMMA         = 0.99
+    LAM           = 0.95
 
     ### __INIT__
     def __init__( self ):
@@ -22,12 +26,12 @@ class player_PPO_1A( player_PPO_1 ):
 
         Critic.addInput( shape = [ None, self.obsv_shape[0] ], name='Observation' )
 
-        Critic.setLayerDefaults( type = tb.layers.fully,
+        Critic.setLayerDefaults( type       = tb.layers.fully,
                                  activation = tb.activs.tanh )
 
         Critic.addLayer( out_channels = 64, input = 'Observation' )
         Critic.addLayer( out_channels = 64 )
-        Critic.addLayer( out_channels = 1,  name = 'Value', activation = None )
+        Critic.addLayer( out_channels = 1, name = 'Value', activation = None )
 
         # Actor
 
@@ -35,7 +39,7 @@ class player_PPO_1A( player_PPO_1 ):
 
         Actor.addInput( shape = [ None, self.obsv_shape[0] ], name = 'Observation' )
 
-        Actor.setLayerDefaults( type = tb.layers.fully,
+        Actor.setLayerDefaults( type       = tb.layers.fully,
                                 activation = tb.activs.tanh )
 
         Actor.addLayer( out_channels = 64 , input = 'Observation' )
@@ -57,7 +61,7 @@ class player_PPO_1A( player_PPO_1 ):
 
         Old.addInput( shape = [ None, self.obsv_shape[0] ], name = 'Observation' )
 
-        Old.setLayerDefaults( type = tb.layers.fully,
+        Old.setLayerDefaults( type       = tb.layers.fully,
                               activation = tb.activs.tanh )
 
         Old.addLayer( out_channels = 64 , input = 'Observation' )
