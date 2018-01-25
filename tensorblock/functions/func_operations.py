@@ -1,3 +1,4 @@
+
 import tensorflow as tf
 import tensorblock as tb
 
@@ -26,8 +27,8 @@ def mean_squared_error( tensors , extras , pars ):
 
     return tf.reduce_mean( tf.square( tensors[0] - tensors[1] ) )
 
-### Mean Squared ErrorHL
-def mean_squared_errorHL( tensors , extras , pars ):
+### Mean Squared Error
+def hlmean_squared_error( tensors , extras , pars ):
 
     return tf.losses.mean_squared_error ( tensors[0] , tensors[1]  )
 
@@ -89,27 +90,19 @@ def mean_variational( tensors , extras , pars ):
 
 
 ### Policy Gradients Cost
-def log_sum_mul(tensors, extras, pars):
+def pgcost(tensors, extras, pars):
 
     axis = len(tb.aux.tf_shape(tensors[0])) - 1
+    loglik = tf.reduce_sum( tensors[1] * tensors[0], axis=axis)
 
-    loglik =  - tensors[1] * tf.log(tensors[0] + 1e-5)
-
-    return tf.reduce_sum(loglik, axis=axis)
-
-### Calculate Cost
-def adv_mul(tensors, extras, pars):
-
-    loglikadv = tensors[0] * tensors[1]
-
-    return tf.reduce_mean(loglikadv)
+    return tf.reduce_mean( tf.multiply( -tf.log(loglik + 1e-8), tensors[2] ) )
 
 ### Get Gradients
 def get_grads(tensors, extras, pars):
 
     return tf.gradients(tensors[0], tensors[1])
 
-### Combine Gradients
+### Combine Gradients (DDPG)
 def combine_grads(tensors, extras, pars):
 
     vars = tf.trainable_variables()
@@ -117,7 +110,7 @@ def combine_grads(tensors, extras, pars):
 
     return tf.gradients(tensors[0], normal_actor_vars, -tensors[1])
 
-### Assign Gradients on Layers
+### Assign Gradients (DDPG)
 def assign(tensors, extras, pars):
 
     TAU = 0.001
@@ -126,9 +119,8 @@ def assign(tensors, extras, pars):
 
     normal_critic_vars = [var for var in vars if 'NormalCritic' in var.name]
     target_critic_vars = [var for var in vars if 'TargetCritic' in var.name]
-
-    normal_actor_vars = [var for var in vars if 'NormalActor' in var.name]
-    target_actor_vars = [var for var in vars if 'TargetActor' in var.name]
+    normal_actor_vars  = [var for var in vars if 'NormalActor'  in var.name]
+    target_actor_vars  = [var for var in vars if 'TargetActor'  in var.name]
 
     update_critic = [target_critic_vars[i].assign(tf.multiply(normal_critic_vars[i], TAU) +
              tf.multiply(target_critic_vars[i], 1. - TAU))
@@ -140,8 +132,8 @@ def assign(tensors, extras, pars):
 
     return update_critic, update_actor
 
-### Surrogate Cost
-def klcost(tensors, extras, pars):
+### Policy Gradients Cost (PPO)
+def ppocost(tensors, extras, pars):
 
     a_mu      = tensors[0]
     a_sigma   = tensors[1]
@@ -151,23 +143,24 @@ def klcost(tensors, extras, pars):
     advantage = tensors[5]
     epsilon   = tensors[6][0]
 
-    pi = tf.distributions.Normal( a_mu, a_sigma )
+    pi    = tf.distributions.Normal( a_mu, a_sigma )
     oldpi = tf.distributions.Normal( o_mu, o_sigma )
 
-    ratio =  pi.prob( actions ) / ( oldpi.prob( actions ) + 1e-6 )
-    surr = ratio * advantage
-    cost = -tf.reduce_mean( tf.minimum( surr, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon ) * advantage ) )
+    ratio = pi.prob( actions ) / ( oldpi.prob( actions ) + 1e-6 )
+    surr  = ratio * advantage
+    cost  = -tf.reduce_mean( tf.minimum( surr, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
 
-    return cost
+    entropy = tf.reduce_mean (pi.entropy())
 
-### Assign Pi and OldPi
+    return cost - 0.001 * entropy
+
+### Assign Gradients (PPO)
 def assignold(tensors, extras, pars):
 
     vars = tf.trainable_variables()
+    pi_vars    = [ var for var in vars if 'Actor' in var.name ]
+    oldpi_vars = [ var for var in vars if 'Old'   in var.name ]
 
-    pi_vars = [var for var in vars if 'Actor' in var.name]
-    oldpi_vars = [var for var in vars if 'Old' in var.name]
-
-    update = [oldpi.assign(pi) for pi, oldpi in zip(pi_vars, oldpi_vars)]
+    update = [ oldpi.assign(pi) for pi, oldpi in zip(pi_vars, oldpi_vars) ]
 
     return update
