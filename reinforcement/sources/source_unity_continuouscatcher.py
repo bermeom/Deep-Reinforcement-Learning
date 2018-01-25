@@ -8,15 +8,15 @@ class source_unity_continuouscatcher( source_unity ):
     def __init__( self ):
 
         source_unity.__init__( self , "continuouscatcher" )
+        self.range_act = 1
 
     ### INFORMATION
-    def range_actions( self ): return 1
+    def range_actions( self ): return self.range_act
 
     ### MAP KEYS
     def map_keys( self , actn ):
 
-        actn = np.clip( actn, -1, 1)
-        return np.expand_dims(actn,0)
+        return np.clip( actn, -self.range_act, self.range_act)
 
     ### PROCESS OBSERVATION
     def process( self , obsv ):

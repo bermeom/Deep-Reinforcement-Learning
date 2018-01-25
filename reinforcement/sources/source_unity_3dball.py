@@ -17,8 +17,7 @@ class source_unity_3dball( source_unity ):
     ### MAP KEYS
     def map_keys( self , actn ):
 
-        actn = np.clip( actn, -self.range_act, self.range_act)
-        return np.expand_dims(actn,0)
+        return np.clip( actn, -self.range_act, self.range_act)
 
     ### PROCESS OBSERVATION
     def process( self , obsv ):

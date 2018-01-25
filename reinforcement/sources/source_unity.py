@@ -44,8 +44,7 @@ class source_unity( source ):
     def move( self , actn ):
 
         actn = np.reshape( actn, [ self.num_agents(), self.num_actions() // self.num_agents() ] )
-
-        brain_info = self.env.step( actn , memory = None, value = None )[self.brain_name]
+        brain_info = self.env.step( self.map_keys(actn) , memory = None, value = None )[self.brain_name]
 
         obsv = brain_info.states[0]
         rewd = brain_info.rewards[0]
