@@ -111,19 +111,14 @@ class player_PPO_1(player):
 
             # Calculate Generalized Advantage Estimation
 
-            running_add_y = 0
-            running_add_a = 0
-            y             = np.zeros_like(rewards)
-            advantage     = rewards + (self.GAMMA * curr_values) - prev_values
+            y = dones * (curr_values * self.GAMMA) + rewards
+            y = np.expand_dims( y, 1 )
+
+            running_add = 0
+            advantage = rewards + (self.GAMMA * curr_values) - prev_values
             for t in reversed ( range( 0, len( advantage ) ) ):
-                if dones[t]:
-                    curr_values[t] = 0
-                    running_add_a  = 0
-                running_add_y  = curr_values[t] * self.GAMMA            + rewards   [t]
-                running_add_a  = running_add_a  * self.GAMMA * self.LAM + advantage [t]
-                y         [t]  = running_add_y
-                advantage [t]  = running_add_a
-            y         = np.expand_dims( y,         1 )
+                running_add  = dones[t] * (running_add  * self.GAMMA * self.LAM) + advantage [t]
+                advantage [t]  = running_add
             advantage = np.expand_dims( advantage, 1 )
 
             # Update Old Pi
