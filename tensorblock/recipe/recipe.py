@@ -19,6 +19,12 @@ class recipe( tb.recipe.base , tb.recipe.block , tb.recipe.init ,
         self.initDefaults()
         self.initVariables()
 
+        self.strname = name
+
+    def __str__( self ):
+
+        return self.strname
+
 ####### Add Block
     def addBlock( self , name = None ):
 
