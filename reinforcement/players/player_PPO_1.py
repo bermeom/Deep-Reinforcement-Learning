@@ -9,7 +9,7 @@ sys.path.append('..')
 import tensorblock as tb
 import numpy as np
 
-from sources.source_unity_exporter import *
+import tensorflow as tf
 
 
 # PLAYER PPO
@@ -42,7 +42,6 @@ class player_PPO_1(player):
         self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_mu'  )
         self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_sigma'  )
         self.brain.addInput( shape = [ None, 1 ] ,               name = 'Advantage')
-        self.brain.addInput( shape = [ None ],                   name = 'Epsilon'  )
 
         # Operations
 
@@ -65,7 +64,7 @@ class player_PPO_1(player):
                                              'O_sigma',
                                              'Actions',
                                              'Advantage',
-                                             'Epsilon'],
+                                             self.EPSILON],
                                  name     = 'ActorCost' )
 
         self.brain.addOperation( function      = tb.optims.adam,
@@ -73,18 +72,14 @@ class player_PPO_1(player):
                                  learning_rate = self.LEARNING_RATE,
                                  name          = 'ActorOptimizer' )
 
-            # Assign
+            # Assign Old Actor
 
-        self.brain.addOperation( function = tb.ops.assignold,
-                                 input    = [],
-                                 name     = 'AssignOld' )
+        self.brain.addOperation( function = tb.ops.assign,
+                                 input = ['Old', 'Actor'],
+                                 name = 'Assign' )
 
     # TRAIN NETWORK
     def train( self, prev_state, curr_state, actn, rewd, done, episode ):
-
-        # To export Unity 3DBall .bytes file execute this when saved trained model is in trained_models folder:
-        #export_ugraph (self.brain, "./trained_models/unity_3dball_ppo/", "3dball", "Actor/mu/MatMul")
-        #raise SystemExit(0)
 
         # Store New Experience Until Done
 
@@ -121,24 +116,23 @@ class player_PPO_1(player):
                 advantage [t]  = running_add
             advantage = np.expand_dims( advantage, 1 )
 
-            # Update Old Pi
+            # Assign Old Pi
 
-            assign = self.brain.run( ['AssignOld'], [] )
+            self.brain.run( ['Assign'], [] )
 
             # Get Old Mu and Sigma
 
             o_mu, o_sigma = self.brain.run( [ 'Old/mu', 'Old/sigma' ], [ [ 'Old/Observation', prev_states ] ] )
 
-            # Update
+            # Optimize
 
             for _ in range (self.UPDATE_SIZE):
 
-                self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states    ],
-                                                        [ 'O_mu',               o_mu           ],
-                                                        [ 'O_sigma',            o_sigma        ],
-                                                        [ 'Actions',            actions        ],
-                                                        [ 'Advantage',          advantage      ],
-                                                        [ 'Epsilon',            [self.EPSILON] ] ] )
+                self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states ],
+                                                        [ 'O_mu',               o_mu        ],
+                                                        [ 'O_sigma',            o_sigma     ],
+                                                        [ 'Actions',            actions     ],
+                                                        [ 'Advantage',          advantage   ] ] )
 
                 self.brain.run( [ 'CriticOptimizer' ], [ [ 'Critic/Observation', prev_states ],
                                                          [ 'Advantage',          y           ] ] )

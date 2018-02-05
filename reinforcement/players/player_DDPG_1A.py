@@ -12,7 +12,7 @@ class player_DDPG_1A( player_DDPG_1 ):
     NUM_FRAMES         = 1
     C_LEARNING_RATE    = 1e-3
     A_LEARNING_RATE    = 1e-4
-    TAU                = 0.001
+    TAU                = 0.01
     REWARD_DISCOUNT    = 0.99
 
     ### __INIT__
@@ -28,7 +28,7 @@ class player_DDPG_1A( player_DDPG_1 ):
     # PREPARE NETWORK
     def network( self ):
 
-        # Critic ------------------------------------------------------------
+        # Critic
 
         NormalCritic = self.brain.addBlock( 'NormalCritic' )
 
@@ -49,7 +49,7 @@ class player_DDPG_1A( player_DDPG_1 ):
         NormalCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4' )
         NormalCritic.addLayer( input = 'Hidden4', out_channels = 1, activation = None , name = 'Value' )
 
-        # Critic Target Network
+        # Target Critic
 
         TargetCritic = self.brain.addBlock( 'TargetCritic' )
 
@@ -60,17 +60,17 @@ class player_DDPG_1A( player_DDPG_1 ):
                                        activation = tb.activs.relu,
                                        bias       = False )
 
-        TargetCritic.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1' )
+        TargetCritic.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1', copy_weights = '../NormalCritic/W_Hidden1' )
 
         H1 = TargetCritic.tensor ('Hidden1' )
         H2 = TargetCritic.tensor( 'Actions' )
         H3 = tf.concat( [H1,H2],1 )
         TargetCritic.addInput( tensor = H3, name = 'Hidden3')
 
-        TargetCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4' )
-        TargetCritic.addLayer( input = 'Hidden4', out_channels = 1, activation = None , name = 'Value' )
+        TargetCritic.addLayer( input = 'Hidden3', out_channels = 200, name = 'Hidden4', copy_weights = '../NormalCritic/W_Hidden4' )
+        TargetCritic.addLayer( input = 'Hidden4', out_channels = 1, activation = None , name = 'Value', copy_weights = '../NormalCritic/W_Value' )
 
-        # Actor --------------------------------------------------------------
+        # Actor
 
         NormalActor = self.brain.addBlock( 'NormalActor' )
 
@@ -89,10 +89,9 @@ class player_DDPG_1A( player_DDPG_1 ):
         out = tf.multiply( out, self.range_actions )
         NormalActor.addInput( tensor = out, name = 'Output')
 
-        # Actor Target Network
+        # Target Actor
 
         TargetActor = self.brain.addBlock( 'TargetActor' )
-        #TargetActor = self.brain.copyBlock(src = 'NormalActor', dst = 'TargetActor')
 
         TargetActor.addInput( shape=[ None, self.obsv_shape[0], self.NUM_FRAMES ], name='Observation' )
 
@@ -100,10 +99,10 @@ class player_DDPG_1A( player_DDPG_1 ):
                                       activation = tb.activs.relu,
                                       bias       = False )
 
-        TargetActor.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1' )
-        TargetActor.addLayer( input = 'Hidden1',     out_channels = 200, name = 'Hidden2' )
-        TargetActor.addLayer( input = 'Hidden2',     out_channels = self.num_actions,
-                              activation = tb.activs.tanh, name = 'Out', min = -0.003, max = 0.003)
+        TargetActor.addLayer( input = 'Observation', out_channels = 128, name = 'Hidden1', copy_weights = '../NormalActor/W_Hidden1')
+        TargetActor.addLayer( input = 'Hidden1',     out_channels = 200, name = 'Hidden2', copy_weights = '../NormalActor/W_Hidden2')
+        TargetActor.addLayer( input = 'Hidden2',     out_channels = self.num_actions, name = 'Out',
+                              activation = tb.activs.tanh, min = -0.003, max = 0.003, copy_weights = '../NormalActor/W_Out')
 
         out = TargetActor.tensor('Out')
         out = tf.multiply( out, self.range_actions )

@@ -24,21 +24,6 @@ class player_DDPG_1(player):
         self.noise_state     = 0
         self.dt              = 0.01
 
-        # Copy initial weights (need to find better way)
-
-        vars = tf.trainable_variables()
-
-        normal_critic_vars = [var for var in vars if 'NormalCritic' in var.name]
-        target_critic_vars = [var for var in vars if 'TargetCritic' in var.name]
-        normal_actor_vars  = [var for var in vars if 'NormalActor'  in var.name]
-        target_actor_vars  = [var for var in vars if 'TargetActor'  in var.name]
-
-        update_critic = [target_critic_vars[i].assign(normal_critic_vars[i])
-                            for i in range(len(target_critic_vars))]
-
-        update_actor = [target_actor_vars[i].assign(normal_actor_vars[i])
-                            for i in range(len(target_actor_vars))]
-
     ## ORNSTEIN-UHLENBECK PROCESS
     def OU( self, mu, theta, sigma):
 
@@ -72,8 +57,6 @@ class player_DDPG_1(player):
 
         # Operations
 
-        self.brain.addOperation( function = tb.ops.assign, input = [], name = 'Assign' )
-
             # Critic
 
         self.brain.addOperation( function = tb.ops.get_grads,
@@ -101,14 +84,15 @@ class player_DDPG_1(player):
                                  learning_rate = self.A_LEARNING_RATE,
                                  name          = 'ActorOptimizer' )
 
-        # TensorBoard
+            # Assign Softly
 
-        self.brain.addSummaryScalar( input = 'CriticCost' )
-        self.brain.addSummaryHistogram( input = 'GetGrads' )
-        self.brain.addSummaryHistogram( input = 'NormalActor/Output' )
-        self.brain.addWriter( name = 'Writer' , dir = './' )
-        self.brain.addSummary( name = 'Summary' )
-        self.brain.initialize()
+        self.brain.addOperation( function = tb.ops.assign_soft,
+                                 input = ['TargetCritic', 'NormalCritic', self.TAU],
+                                 name = 'AssignCritic')
+
+        self.brain.addOperation( function = tb.ops.assign_soft,
+                                 input = ['TargetActor',   'NormalActor', self.TAU],
+                                 name = 'AssignActor')
 
     # TRAIN NETWORK
     def train(self, prev_state, curr_state, actn, rewd, done, episode):
@@ -165,12 +149,6 @@ class player_DDPG_1(player):
             grads = self.brain.run( ['GetGrads'], [ [ 'NormalCritic/Observation', prev_states],
                                                     [ 'NormalCritic/Actions',     new_a      ] ] )
 
-            # Run Summary (need to find better way)
-
-            _, s = self.brain.run( ['GetGrads','Summary'], [ [ 'NormalCritic/Observation', prev_states      ],
-                                                             [ 'NormalCritic/Actions',     new_a            ],
-                                                             [ 'TDTarget',                 expected_rewards ],
-                                                             [ 'NormalActor/Observation',  prev_states      ] ] )
             # Optimize Actor
 
             _ = self.brain.run( ['ActorOptimizer'], [ [ 'NormalActor/Observation', prev_states ],
@@ -178,8 +156,5 @@ class player_DDPG_1(player):
 
             # Copy weights to Target Networks
 
-            _,_ = self.brain.run( 'Assign' , [] )
-
-            # TensorBoard
-
-            self.brain.write( summary = s, iter = episode )
+            self.brain.run( ['AssignActor'], [] )
+            self.brain.run( ['AssignCritic'], [] )
