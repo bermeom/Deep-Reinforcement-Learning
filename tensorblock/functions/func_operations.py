@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 import tensorblock as tb
 
@@ -9,6 +8,24 @@ def copy( tensors , extras , pars ):
     for i in range( len( tensors[0] ) ):
         list.append( tensors[1][i].assign( tensors[0][i] ) )
     return list
+
+### Assign
+def assign( tensors , extras , pars ):
+
+    vars = tf.trainable_variables()
+    variables0 = [ var for var in vars if str(tensors[0]) in var.name ]
+    variables1 = [ var for var in vars if str(tensors[1]) in var.name ]
+
+    return [ v0.assign(v1) for v0, v1 in zip(variables0, variables1) ]
+
+### Assign Soft
+def assign_soft( tensors , extras , pars ):
+
+    vars = tf.trainable_variables()
+    variables0 = [ var for var in vars if str(tensors[0]) in var.name ]
+    variables1 = [ var for var in vars if str(tensors[1]) in var.name ]
+
+    return [ v0.assign( v1 * tensors[2] + v0 * (1. - tensors[2] )) for v0, v1 in zip(variables0, variables1) ]
 
 ### Mean SoftMax Cross Entropy Logit
 def mean_soft_cross_logit( tensors , extras , pars ):
@@ -110,28 +127,6 @@ def combine_grads(tensors, extras, pars):
 
     return tf.gradients(tensors[0], normal_actor_vars, -tensors[1])
 
-### Assign Gradients (DDPG)
-def assign(tensors, extras, pars):
-
-    TAU = 0.001
-
-    vars = tf.trainable_variables()
-
-    normal_critic_vars = [var for var in vars if 'NormalCritic' in var.name]
-    target_critic_vars = [var for var in vars if 'TargetCritic' in var.name]
-    normal_actor_vars  = [var for var in vars if 'NormalActor'  in var.name]
-    target_actor_vars  = [var for var in vars if 'TargetActor'  in var.name]
-
-    update_critic = [target_critic_vars[i].assign(tf.multiply(normal_critic_vars[i], TAU) +
-             tf.multiply(target_critic_vars[i], 1. - TAU))
-             for i in range(len(target_critic_vars))]
-
-    update_actor = [target_actor_vars[i].assign(tf.multiply(normal_actor_vars[i], TAU) +
-             tf.multiply(target_actor_vars[i], 1. - TAU))
-             for i in range(len(target_actor_vars))]
-
-    return update_critic, update_actor
-
 ### Policy Gradients Cost (PPO)
 def ppocost(tensors, extras, pars):
 
@@ -141,7 +136,7 @@ def ppocost(tensors, extras, pars):
     o_sigma   = tensors[3]
     actions   = tensors[4]
     advantage = tensors[5]
-    epsilon   = tensors[6][0]
+    epsilon   = tensors[6]
 
     pi    = tf.distributions.Normal( a_mu, a_sigma )
     oldpi = tf.distributions.Normal( o_mu, o_sigma )
@@ -153,14 +148,3 @@ def ppocost(tensors, extras, pars):
     entropy = tf.reduce_mean (pi.entropy())
 
     return cost - 0.001 * entropy
-
-### Assign Gradients (PPO)
-def assignold(tensors, extras, pars):
-
-    vars = tf.trainable_variables()
-    pi_vars    = [ var for var in vars if 'Actor' in var.name ]
-    oldpi_vars = [ var for var in vars if 'Old'   in var.name ]
-
-    update = [ oldpi.assign(pi) for pi, oldpi in zip(pi_vars, oldpi_vars) ]
-
-    return update
