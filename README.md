@@ -6,7 +6,7 @@
    The learner is not told which actions to take, but instead must discover which actions yield the most reward by trial and error.  
    A reinforcement learning agent interacts with its environment formulated as a Markov Decision Process (MDP): At each time *t*, the agent receives an observation *o(t)*, and a reward *r(t)*. It then chooses an action a *a(t)*, which is sent to the environment. The environment moves to a new state *s(t+1)*. The goal of a reinforcement learning agent is to collect as much reward as possible.
 
-![Picture](http://web.stanford.edu/class/cs234/images/header2.png)
+A video on these implementations is available: [YouTube](https://www.youtube.com/watch?v=cEcCHs1GGpg)
 
 ## Tensorblock
 
@@ -44,7 +44,7 @@ Some Results:
 ## Versions
 
 - Python 3.5
-- Tensorflow 1.3
+- Tensorflow 1.4
 - Pygame 1.9.3
 - OpenCV-Python 3.3.0.9
 - NumPy 1.13.1
