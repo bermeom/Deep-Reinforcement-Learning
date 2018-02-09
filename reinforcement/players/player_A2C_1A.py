@@ -40,8 +40,8 @@ class player_A2C_1A( player_A2C_1 ):
                                      weight_stddev = 0.01,
                                      bias_stddev   = 0.01 )
 
-        self.brain.addLayer( input = 'Observation', out_channels = 256 )
-        self.brain.addLayer( out_channels = 256 )
+        self.brain.addLayer( input = 'Observation', out_channels = 512 )
+        self.brain.addLayer( out_channels = 512 )
         self.brain.addLayer( out_channels = 1, activation = None ,name = 'Value' )
 
         # Actor --------------------------------------------------------------
@@ -53,6 +53,6 @@ class player_A2C_1A( player_A2C_1 ):
                                      weight_stddev = 0.01,
                                      bias_stddev   = 0.01 )
 
-        self.brain.addLayer( input = 'Observation', out_channels = 256 )
-        self.brain.addLayer( out_channels = 256 )
+        self.brain.addLayer( input = 'Observation', out_channels = 512 )
+        self.brain.addLayer( out_channels = 512 )
         self.brain.addLayer( out_channels = self.num_actions, activation = tb.activs.softmax, name = 'Output' )
