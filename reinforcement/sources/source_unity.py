@@ -27,7 +27,7 @@ class source_unity( source ):
     ### INFORMATION
     def num_actions( self ):
 
-        return self.env.brains[self.brain_name].action_space_size * len(self.brain_initial_info.agents)
+        return self.env.brains[self.brain_name].action_space_size
 
     def num_agents( self ):
 
@@ -43,7 +43,7 @@ class source_unity( source ):
     ### MOVE ONE STEP
     def move( self , actn ):
 
-        actn = np.reshape( actn, [ self.num_agents(), self.num_actions() // self.num_agents() ] )
+        actn = np.reshape( self.num_agents() * [actn], [ self.num_agents(), self.num_actions() ] )
         brain_info = self.env.step( self.map_keys(actn) , memory = None, value = None )[self.brain_name]
 
         obsv = brain_info.states[0]

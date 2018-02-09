@@ -31,7 +31,10 @@ class player:
         self.obsv_shape = obsv.shape
         self.num_actions = source.num_actions()
         self.range_actions = source.range_actions()
-        self.iscontinuous = source.range_actions()
+
+        self.continuous = False
+        if source.range_actions() != -1:
+            self.continuous = True
 
         self.initialize()
         return self.restart( obsv )
@@ -60,8 +63,8 @@ class player:
     ### CREATE ACTION
     def create_action( self , idx ):
 
-        if (self.iscontinuous != -1): return idx
-        
+        if self.continuous: return idx
+
         action = np.zeros( self.num_actions )
         action[ idx ] = 1
 
