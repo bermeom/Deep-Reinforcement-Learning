@@ -4,7 +4,7 @@ from players.player_dql_bayesian_2 import *
 # PLAYER DQL BAYESIAN
 class player_dql_bayesian_2A( player_dql_bayesian_2 ):
 
-    NUM_FRAMES = 1
+    NUM_FRAMES = 2
     BATCH_SIZE = 512
 
     LEARNING_RATE   = 3e-4
