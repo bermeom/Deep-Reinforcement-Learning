@@ -1,15 +1,11 @@
 from players.player import player
 from auxiliar.aux_plot import *
 
-import random
-from collections import deque
-
 import sys
 sys.path.append('..')
+
 import tensorblock as tb
 import numpy as np
-
-import tensorflow as tf
 
 
 # PLAYER PPO
@@ -20,7 +16,7 @@ class player_PPO_1(player):
 
         player.__init__(self)
 
-        self.experiences = deque()
+        self.experiences = []
 
     # CHOOSE NEXT ACTION
     def act(self, state):
@@ -106,14 +102,19 @@ class player_PPO_1(player):
 
             # Calculate Generalized Advantage Estimation
 
-            y = dones * (curr_values * self.GAMMA) + rewards
-            y = np.expand_dims( y, 1 )
-
-            running_add = 0
-            advantage = rewards + (self.GAMMA * curr_values) - prev_values
+            running_add_y = 0
+            running_add_a = 0
+            y = np.zeros_like(rewards)
+            advantage  = rewards + (self.GAMMA * curr_values) - prev_values
             for t in reversed ( range( 0, len( advantage ) ) ):
-                running_add  = dones[t] * (running_add  * self.GAMMA * self.LAM) + advantage [t]
-                advantage [t]  = running_add
+                if dones[t]:
+                    curr_values[t] = 0
+                    running_add_a  = 0
+                running_add_y  = curr_values[t] * self.GAMMA            + rewards   [t]
+                running_add_a  = running_add_a  * self.GAMMA * self.LAM + advantage [t]
+                y [t] = running_add_y
+                advantage [t] = running_add_a
+            y = np.expand_dims( y, 1 )
             advantage = np.expand_dims( advantage, 1 )
 
             # Assign Old Pi
@@ -139,4 +140,4 @@ class player_PPO_1(player):
 
             # Reset
 
-            self.experiences = deque()
+            self.experiences = []
