@@ -45,4 +45,4 @@ Execute this function on the algorithm when a saved trained model of the env is 
 	raise SystemExit(0)  
 	#Example with PPO and 3DBall: trainedmodel = "unity_3dball_ppo/",
 	                              envname = "3dball",
-				      nnoutput =  "Actor/mu/MatMul" </sub>  
+				      nnoutput =  "Actor/Mu/MatMul" </sub>  

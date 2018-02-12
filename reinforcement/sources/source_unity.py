@@ -43,8 +43,19 @@ class source_unity( source ):
     ### MOVE ONE STEP
     def move( self , actn ):
 
-        actn = np.reshape( self.num_agents() * [actn], [ self.num_agents(), self.num_actions() ] )
-        brain_info = self.env.step( self.map_keys(actn) , memory = None, value = None )[self.brain_name]
+        # Map Actions
+
+        if self.env.brains[self.brain_name].action_space_type == "continuous":
+            actn = np.reshape( self.num_agents() * [ self.map_keys( actn ) ], [ self.num_agents(), self.num_actions() ] )
+
+        else:
+            actn = np.reshape( self.num_agents() * [ self.map_keys( actn ) ], [ self.num_agents(), 1 ] )
+
+        # Step on Environment
+
+        brain_info = self.env.step( actn , memory = None, value = None )[ self.brain_name ]
+
+        # Get Info
 
         obsv = brain_info.states[0]
         rewd = brain_info.rewards[0]

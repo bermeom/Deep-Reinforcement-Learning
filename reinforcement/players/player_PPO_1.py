@@ -26,8 +26,15 @@ class player_PPO_1(player):
     # CALCULATE NETWORK
     def calculate(self, state):
 
-        action = self.brain.run( 'Actor/Output', [ [ 'Actor/Observation', [state] ] ] )
-        return self.create_action( np.reshape ( action,  self.num_actions ) )
+        if self.continuous:
+            action = self.brain.run( 'Actor/Output', [ [ 'Actor/Observation', [state] ] ] )
+            action = np.reshape( action, self.num_actions )
+
+        if not self.continuous:
+            output = np.squeeze( self.brain.run( 'Actor/Discrete', [ [ 'Actor/Observation', [state] ] ] ) )
+            action = np.random.choice( np.arange( len( output ) ), p = output )
+
+        return self.create_action( action )
 
     # PREPARE NETWORK
     def operations(self):
@@ -35,8 +42,9 @@ class player_PPO_1(player):
         # Placeholders
 
         self.brain.addInput( shape = [ None, self.num_actions ], name = 'Actions'  )
-        self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_mu'  )
-        self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_sigma'  )
+        self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_Mu'  )
+        self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_Sigma'  )
+        self.brain.addInput( shape = [ None, self.num_actions ], name = 'O_Discrete'  )
         self.brain.addInput( shape = [ None, 1 ] ,               name = 'Advantage')
 
         # Operations
@@ -53,15 +61,25 @@ class player_PPO_1(player):
                                  name          = 'CriticOptimizer' )
             # Actor
 
-        self.brain.addOperation( function = tb.ops.ppocost,
-                                 input    = ['Actor/mu',
-                                             'Actor/sigma',
-                                             'O_mu',
-                                             'O_sigma',
-                                             'Actions',
-                                             'Advantage',
-                                             self.EPSILON],
-                                 name     = 'ActorCost' )
+        if self.continuous:
+            self.brain.addOperation( function = tb.ops.ppocost_continuous,
+                                     input    = [ 'Actor/Mu',
+                                                  'Actor/Sigma',
+                                                  'O_Mu',
+                                                  'O_Sigma',
+                                                  'Actions',
+                                                  'Advantage',
+                                                  self.EPSILON ],
+                                     name     = 'ActorCost' )
+
+        if not self.continuous:
+            self.brain.addOperation( function = tb.ops.ppocost_discrete,
+                                     input    = [ 'Actor/Discrete',
+                                                  'O_Discrete',
+                                                  'Actions',
+                                                  'Advantage',
+                                                  self.EPSILON ],
+                                     name     = 'ActorCost' )
 
         self.brain.addOperation( function      = tb.optims.adam,
                                  input         = 'ActorCost',
@@ -77,7 +95,7 @@ class player_PPO_1(player):
     # TRAIN NETWORK
     def train( self, prev_state, curr_state, actn, rewd, done, episode ):
 
-        # Store New Experience Until Done
+        # Store New Experience Until Train
 
         self.experiences.append( (prev_state, curr_state, actn, rewd, done) )
 
@@ -121,19 +139,29 @@ class player_PPO_1(player):
 
             self.brain.run( ['Assign'], [] )
 
-            # Get Old Mu and Sigma
+            # Get Old Probabilities
 
-            o_mu, o_sigma = self.brain.run( [ 'Old/mu', 'Old/sigma' ], [ [ 'Old/Observation', prev_states ] ] )
+            if self.continuous:
+                o_Mu, o_Sigma = self.brain.run( [ 'Old/Mu', 'Old/Sigma' ], [ [ 'Old/Observation', prev_states ] ] )
+
+            if not self.continuous:
+                o_Discrete =  self.brain.run(  'Old/Discrete' , [ [ 'Old/Observation', prev_states ] ] )
 
             # Optimize
 
             for _ in range (self.UPDATE_SIZE):
 
-                self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states ],
-                                                        [ 'O_mu',               o_mu        ],
-                                                        [ 'O_sigma',            o_sigma     ],
-                                                        [ 'Actions',            actions     ],
-                                                        [ 'Advantage',          advantage   ] ] )
+                if self.continuous:
+                    self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states ],
+                                                            [ 'O_Mu',               o_Mu        ],
+                                                            [ 'O_Sigma',            o_Sigma     ],
+                                                            [ 'Actions',            actions     ],
+                                                            [ 'Advantage',          advantage   ] ] )
+                if not self.continuous:
+                    self.brain.run( [ 'ActorOptimizer' ], [ [ 'Actor/Observation',  prev_states ],
+                                                            [ 'O_Discrete',         o_Discrete  ],
+                                                            [ 'Actions',            actions     ],
+                                                            [ 'Advantage',          advantage   ] ] )
 
                 self.brain.run( [ 'CriticOptimizer' ], [ [ 'Critic/Observation', prev_states ],
                                                          [ 'Advantage',          y           ] ] )

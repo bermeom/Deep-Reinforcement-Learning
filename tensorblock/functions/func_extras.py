@@ -41,3 +41,8 @@ def bias( x , b ):
 def dropout( x , dropout ):
 
     return tf.nn.dropout( x , dropout )
+
+### Normal Distribution
+def dist_normal( mu, sigma ):
+
+    return tf.distributions.Normal( mu, sigma )

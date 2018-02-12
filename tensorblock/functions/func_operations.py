@@ -105,12 +105,10 @@ def mean_variational( tensors , extras , pars ):
 
     return tf.reduce_mean( rec_loss + kl_div )
 
-
 ### Policy Gradients Cost
 def pgcost(tensors, extras, pars):
 
-    axis = len(tb.aux.tf_shape(tensors[0])) - 1
-    loglik = tf.reduce_sum( tensors[1] * tensors[0], axis=axis)
+    loglik = tf.reduce_sum( tensors[1] * tensors[0], axis = 1 )
 
     return tf.reduce_mean( tf.multiply( -tf.log(loglik + 1e-8), tensors[2] ) )
 
@@ -127,24 +125,31 @@ def combine_grads(tensors, extras, pars):
 
     return tf.gradients(tensors[0], normal_actor_vars, -tensors[1])
 
-### Policy Gradients Cost (PPO)
-def ppocost(tensors, extras, pars):
+### Policy Gradients Cost (PPO Discrete)
+def ppocost_continuous(tensors, extras, pars):
 
-    a_mu      = tensors[0]
-    a_sigma   = tensors[1]
-    o_mu      = tensors[2]
-    o_sigma   = tensors[3]
-    actions   = tensors[4]
-    advantage = tensors[5]
-    epsilon   = tensors[6]
+    a_mu, a_sigma = tensors[0], tensors[1]
+    o_mu, o_sigma = tensors[2], tensors[3]
+    actions, advantage, epsilon = tensors[4], tensors[5], tensors[6]
 
-    pi    = tf.distributions.Normal( a_mu, a_sigma )
-    oldpi = tf.distributions.Normal( o_mu, o_sigma )
+    pi      = tf.distributions.Normal( a_mu, a_sigma )
+    oldpi   = tf.distributions.Normal( o_mu, o_sigma )
+    ratio   = pi.prob( actions ) / ( oldpi.prob( actions ) + 1e-8 )
+    cost    = -tf.reduce_mean( tf.minimum( ratio * advantage, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
+    entropy = tf.reduce_mean( tf.reduce_mean ( pi.entropy() ) )
 
-    ratio = pi.prob( actions ) / ( oldpi.prob( actions ) + 1e-6 )
-    surr  = ratio * advantage
-    cost  = -tf.reduce_mean( tf.minimum( surr, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
+    return cost - 0.001 * entropy
 
-    entropy = tf.reduce_mean (pi.entropy())
+### Policy Gradients Cost (PPO Continuous)
+def ppocost_discrete(tensors, extras, pars):
+
+    a_discrete, o_discrete = tensors[0], tensors[1]
+    actions, advantage, epsilon = tensors[2], tensors[3], tensors[4]
+
+    a_prob  = tf.reduce_sum( a_discrete * actions, axis = 1 )
+    o_prob  = tf.reduce_sum( o_discrete * actions, axis = 1)
+    ratio   = a_prob / ( o_prob + 1e-8 )
+    cost    = -tf.reduce_mean( tf.minimum( ratio * advantage, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
+    entropy = tf.reduce_mean( tf.reduce_sum( a_discrete * tf.log( a_discrete + 1e-8 ), axis = 1 ) )
 
     return cost - 0.001 * entropy

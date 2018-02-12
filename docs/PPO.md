@@ -12,8 +12,8 @@ This made [video](https://youtu.be/0cBAjqQ8nw4) shows it running on Unity with t
 ### Overview
 
 The Proximal Policy Optimization is an On-Policy GAE Actor Critic algorithm that alternates between colecting batches of samples and optimizing the policy by a number of epochs with a “surrogate” objective function.  
-This implementation does not share parameters between the Actor and the Critic. It does not have parallel actors, so the sampled batch comes from a single agent. And it does not uses an entropy cost.  
-The algorithm works on continuous or discrete action spaces environments, but this implementation works on the continuous case, with the policy returning a mean and a std deviation.  
+This implementation does not share parameters between the Actor and the Critic. It does not have parallel actors, so the sampled batch comes from a single agent.  
+It works on continuous or discrete action space environments.  
 
 ### References
 

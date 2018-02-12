@@ -1,5 +1,4 @@
 from players.player_PPO_1 import *
-import tensorflow as tf
 
 
 # PLAYER PPO
@@ -7,7 +6,7 @@ class player_PPO_1A( player_PPO_1 ):
 
     LEARNING_RATE = 3e-4
     UPDATE_SIZE   = 5
-    BATCH_SIZE    = 2048
+    BATCH_SIZE    = 1024
     EPSILON       = 0.2
     GAMMA         = 0.99
     LAM           = 0.95
@@ -45,15 +44,15 @@ class player_PPO_1A( player_PPO_1 ):
         Actor.addLayer( out_channels = 64 , input = 'Observation' )
         Actor.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu', activation = None)
-        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'sigma' )
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None,               name = 'Mu')
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma' )
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softmax,  name = 'Discrete' )
 
-        a_mu     = Actor.tensor( 'mu' )
-        a_sigma  = Actor.tensor( 'sigma' )
-        a_dist   = tf.distributions.Normal( a_mu, a_sigma )
-        a_action = a_dist.sample( 1 )
-
-        Actor.addInput( tensor = a_action, name = 'Output')
+        mu     = Actor.tensor( 'Mu' )
+        sigma  = Actor.tensor( 'Sigma' )
+        dist   = tb.extras.dist_normal( mu, sigma )
+        action = dist.sample( 1 )
+        Actor.addInput( tensor = action, name = 'Output')
 
         # OldActor
 
@@ -67,5 +66,6 @@ class player_PPO_1A( player_PPO_1 ):
         Old.addLayer( out_channels = 64 , input = 'Observation' )
         Old.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', name = 'mu', activation = None )
-        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'sigma' )
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None,               name = 'Mu')
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma' )
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softmax,  name = 'Discrete' )
