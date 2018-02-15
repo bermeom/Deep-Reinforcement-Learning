@@ -14,6 +14,16 @@ Tensorblock is an API to facilitate the implementation of Machine Learning Algor
 
 See the documentation: [TensorBlock](docs/TensorBlock.md)
 
+## Algorithms:
+
+The Reinforcement Learning Algorithms currently implemented are:  
+
+- [Q-Learning](docs/QLearning.md)
+- [REINFORCE](docs/REINFORCE.md)
+- [Actor Critic](docs/ActorCritic.md)
+- [DDPG](docs/DDPG.md)
+- [PPO](docs/PPO.md)
+
 ## Environments:
 
 The environments currently supported are:
@@ -24,16 +34,6 @@ The environments currently supported are:
 - Unity Machine Learning
 
 See the documentation: [Environments](docs/Environments.md)
-
-## Algorithms:
-
-The Reinforcement Learning Algorithms currently implemented are:  
-
-- [Q-Learning](docs/QLearning.md)
-- [REINFORCE](docs/REINFORCE.md)
-- [Actor Critic](docs/ActorCritic.md)
-- [DDPG](docs/DDPG.md)
-- [PPO](docs/PPO.md)
 
 ## Results
 
@@ -57,4 +57,4 @@ Some Results:
 
 ## Acknowledgement
 
-TensorBlock is developed by Vitor Guizilini. Many thanks for his guidance and support. Also, I thank Professor Glauco Caurin and all colleagues from the Mechatronics Laboratory of the Engineering School of São Carlos, and the support from CNPq.   
+TensorBlock is developed by Vitor Guizilini. Many thanks for his guidance and support. Also, I thank Professor Glauco Caurin and all colleagues from the Mechatronics Laboratory of the São Carlos School of Engineering, and the support from CNPq.   
