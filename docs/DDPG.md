@@ -11,7 +11,6 @@ Use [script3](../reinforcement/script3.sh) to run a trained model.
 ### Overview
 
 The Deep Deterministic Policy Gradients is an Off-Policy Temporal Difference Actor-Critic algorithm.  
-The algorithm uses the Critic gradients as the Actor gradients, so it does not uses likelihood ratio.
 It has an Experience Replay to sample experiences from different policies to calculate the TD Erros.  
 It uses Target Networks, updated softly, to stabilize the action-value functions estimations.  
 It operates on continuous action spaces and uses the Uhlenbeck and Ornstein process to improve exploration.  

@@ -18,11 +18,11 @@ See the documentation: [TensorBlock](docs/TensorBlock.md)
 
 The Reinforcement Learning Algorithms currently implemented are:  
 
-- [Q-Learning](docs/QLearning.md)
+- [Deep Q-Learning](docs/QLearning.md)
 - [REINFORCE](docs/REINFORCE.md)
 - [Actor Critic](docs/ActorCritic.md)
-- [DDPG](docs/DDPG.md)
-- [PPO](docs/PPO.md)
+- [Deep Deterministic Policy Gradients (DDPG)](docs/DDPG.md)
+- [Proximal Policy Optimization (PPO)](docs/PPO.md)
 
 ## Environments:
 

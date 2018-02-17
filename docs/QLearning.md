@@ -20,4 +20,5 @@ The most common implicity policy is the e-greedy but this implementation has an 
 ### References
 
 WATKINS, Christopher. Learning from Delayed Rewards. Cambridge, UK: King’s College, 1989.  
+MNIH, Volodymyr; et al.Playing Atari with Deep Reinforcement Learning. 2013  
 MNIH, Volodymyr; et al. Human-level control through deep reinforcement learning. Nature, Vol 518, fev. 2015.  

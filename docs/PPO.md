@@ -11,7 +11,7 @@ This made [video](https://youtu.be/0cBAjqQ8nw4) shows it running on Unity with t
 
 ### Overview
 
-The Proximal Policy Optimization is an On-Policy GAE Actor Critic algorithm that alternates between colecting batches of samples and optimizing the policy by a number of epochs with a “surrogate” objective function.  
+The Proximal Policy Optimization is an Off-Policy Importance Sampling Actor Critic algorithm that alternates between colecting batches of samples and optimizing the policy by a number of epochs with a “surrogate” objective function.  
 This implementation does not share parameters between the Actor and the Critic. It does not have parallel actors, so the sampled batch comes from a single agent.  
 It works on continuous or discrete action space environments.  
 
@@ -20,3 +20,4 @@ It works on continuous or discrete action space environments.
 SCHULMAN, John; et al. Proximal Policy Optimization Algorithms. aug. 2017.  
 SCHULMAN, John; et al. High-Dimensional Continuous Control Using Generalized Advantage Estimation. sep. 2017  
 HEESS, Nicolas; et al. Emergence of Locomotion Behaviours in Rich Environments. jul. 2017  
+SCHULMAN, John; et al. Trust region policy optimization. ICML. 2015.  

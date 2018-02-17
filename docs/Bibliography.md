@@ -23,8 +23,8 @@ Policy-Based:
 * SILVER, David; et al. Deterministic Policy Gradient Algorithms. 2014
 * LILLICRAP, Timothy P.; et al. Continuous control with deep reinforcement learning. ICLR, fev. 2016.
 * MNIH, Volodymyr; et al. Asynchronous Methods for Deep Reinforcement Learning. 2016.
-* SCHULMAN John; et al. Trust Region Policy Optimization, apr. 2017
-* SCHULMAN John; et al. Proximal Policy Optimization Algorithms, aug. 2017.
+* SCHULMAN John; et al. Trust Region Policy Optimization. ICML, 2015
+* SCHULMAN John; et al. Proximal Policy Optimization Algorithms. aug. 2017.
 
 Others:  
 
@@ -36,7 +36,6 @@ Others:
 
 ### Great Code Examples
 
-* https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A   
 * https://github.com/hunkim/ReinforcementZeroToAll/blob   
 * https://github.com/dennybritz/reinforcement-learning   
 * https://medium.com/@awjuliani/latest   
@@ -44,3 +43,8 @@ Others:
 * https://github.com/camigord/Distributed_DDPG   
 * http://pemami4911.github.io/blog/2016/08/21/ddpg-rl.html   
 * https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow/   
+* https://github.com/openai/baselines
+* https://github.com/ShangtongZhang/reinforcement-learning-an-introduction
+* https://github.com/Unity-Technologies/ml-agents
+* https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A   
+
