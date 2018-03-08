@@ -41,15 +41,17 @@ Some Results:
 
 - [Result Comparison](statistics/comparison.md)
 
-## Versions
+## Dependencies
 
 - Python 3.5
 - Tensorflow 1.4
 - Pygame 1.9.3
 - OpenCV-Python 3.3.0.9
 - NumPy 1.13.1
-- Gym 0.9.2
+- Gym 0.10.3
 - MatplotLib 2.0.2
+- Unity ML 0.2
+- MuJoCo 1.50
 
 ## Bibliography
 

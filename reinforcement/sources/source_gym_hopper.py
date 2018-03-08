@@ -1,20 +1,19 @@
-
 from sources.source_gym import source_gym
-import cv2
 import numpy as np
 
-##### SOURCE GYM INVERTED PENDULUM
+
+##### SOURCE GYM HOPPER
 class source_gym_hopper( source_gym ):
 
     ### __INIT__
     def __init__( self ):
 
-        source_gym.__init__( self , 'Hopper-v1' )
+        source_gym.__init__( self , 'Hopper-v2' )
 
     ### INFORMATION
     def num_actions( self ): return self.env.action_space.shape[0]
     def range_actions( self ): return abs(self.env.action_space.high[0])
-    
+
     ### MAP KEYS
     def map_keys( self , actn ):
 

@@ -1,15 +1,14 @@
-
 from sources.source_gym import source_gym
-import cv2
 import numpy as np
 
-##### SOURCE GYM INVERTED PENDULUM
+
+##### SOURCE GYM HALFCHEETAH
 class source_gym_halfcheetah( source_gym ):
 
     ### __INIT__
     def __init__( self ):
 
-        source_gym.__init__( self , 'HalfCheetah-v1' )
+        source_gym.__init__( self , 'HalfCheetah-v2' )
 
     ### INFORMATION
     def num_actions( self ): return self.env.action_space.shape[0]

@@ -3,13 +3,13 @@ from sources.source_gym import source_gym
 import cv2
 import numpy as np
 
-##### SOURCE GYM INVERTED PENDULUM
+##### SOURCE GYM INVERTED DOUBLE PENDULUM
 class source_gym_dpendulum( source_gym ):
 
     ### __INIT__
     def __init__( self ):
 
-        source_gym.__init__( self , 'InvertedDoublePendulum-v1' )
+        source_gym.__init__( self , 'InvertedDoublePendulum-v2' )
 
     ### INFORMATION
     def num_actions( self ): return self.env.action_space.shape[0]

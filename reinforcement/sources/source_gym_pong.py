@@ -1,4 +1,3 @@
-
 from sources.source_gym import source_gym
 import cv2
 import numpy as np
@@ -10,7 +9,7 @@ class source_gym_pong( source_gym ):
     ### __INIT__
     def __init__( self ):
 
-        source_gym.__init__( self , 'Pong-v0' )
+        source_gym.__init__( self , 'Pong-v4' )
 
     ### INFORMATION
     def num_actions( self ): return 3

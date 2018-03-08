@@ -1,5 +1,5 @@
-
 from sources.source_pygame import source_pygame
+
 
 ##### SOURCE PYGAME CHASE
 class source_pygame_chase( source_pygame ):
@@ -25,6 +25,3 @@ class source_pygame_chase( source_pygame ):
     def process( self , obsv ):
 
         return obsv
-
-
-

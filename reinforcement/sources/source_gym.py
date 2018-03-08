@@ -4,7 +4,7 @@ import gym
 from sources.source import source
 from gym import wrappers
 
-##### SOURCE PYGAME
+##### SOURCE GYM
 class source_gym( source ):
 
     ### __INIT__

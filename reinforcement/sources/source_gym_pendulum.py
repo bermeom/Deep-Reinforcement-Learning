@@ -1,7 +1,6 @@
-
 from sources.source_gym import source_gym
-import cv2
 import numpy as np
+
 
 ##### SOURCE GYM INVERTED PENDULUM
 class source_gym_pendulum( source_gym ):
@@ -9,7 +8,7 @@ class source_gym_pendulum( source_gym ):
     ### __INIT__
     def __init__( self ):
 
-        source_gym.__init__( self , 'InvertedPendulum-v1' )
+        source_gym.__init__( self , 'InvertedPendulum-v2' )
 
     ### INFORMATION
     def num_actions( self ): return self.env.action_space.shape[0]
