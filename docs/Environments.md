@@ -20,7 +20,6 @@ Raw Inputs (1 dimension):
 			- Reacher
 	- Unity Machine Learning
 		- 3D Ball
-		- Continuous Catcher 
 
 
 Raw Image Inputs (2 dimensions):  
@@ -35,8 +34,7 @@ Raw Image Inputs (2 dimensions):
 
 1) It is easy to add new environments.
 
-2) To use a Unity Env the build files of the environment must be on folder reinforcement/sources/unity/  
-You can build it yourself following [Unity ML GitHub](https://github.com/Unity-Technologies/ml-agents) or download some in my [Google Drive](https://drive.google.com/drive/folders/13_uD0QtYc8fzWaVAz5auVNzk9WQUOqi4?usp=sharing).
+2) More info on Unity Envs: [Unity ML GitHub](https://github.com/Unity-Technologies/ml-agents).
 
 3) To export a Unity Env .bytes file to run the trained model on Unity:  
 Execute this function on the algorithm when a saved trained model of the env is in _trained_models_ folder:     

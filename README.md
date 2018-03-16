@@ -50,7 +50,7 @@ Some Results:
 - NumPy 1.13.1
 - Gym 0.10.3
 - MatplotLib 2.0.2
-- Unity ML 0.2
+- Unity ML 0.3
 - MuJoCo 1.50
 
 ## Bibliography

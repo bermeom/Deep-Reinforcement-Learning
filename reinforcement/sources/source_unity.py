@@ -16,6 +16,7 @@ class source_unity( source ):
         self.env = UnityEnvironment( file_name = "./sources/unity/" + game, worker_id = 0 )
         self.brain_name = self.env.brain_names[0]
         self.brain_initial_info = self.env.reset(True, None)[self.brain_name]
+        self.image_obsv = False
 
         def signal_handler(signal, frame):
             self.env.close()
@@ -28,7 +29,7 @@ class source_unity( source ):
     ### INFORMATION
     def num_actions( self ):
 
-        return self.env.brains[self.brain_name].action_space_size
+        return self.env.brains[self.brain_name].vector_action_space_size
 
     def num_agents( self ):
 
@@ -37,7 +38,8 @@ class source_unity( source ):
     ### START SIMULATION
     def start( self ):
 
-        obsv = self.env.reset(True, None)[self.brain_name].states[0]
+        obsv = self.env.reset(True, None)[self.brain_name].vector_observations[0]
+        if (self.image_obsv): obsv = np.float32(self.env.reset(True, None)[self.brain_name].observations[0][0])
 
         return self.process( obsv )
 
@@ -46,7 +48,7 @@ class source_unity( source ):
 
         # Map Actions
 
-        if self.env.brains[self.brain_name].action_space_type == "continuous":
+        if self.env.brains[self.brain_name].vector_action_space_type == "continuous":
             actn = np.reshape( self.num_agents() * [ self.map_keys( actn ) ], [ self.num_agents(), self.num_actions() ] )
 
         else:
@@ -54,12 +56,14 @@ class source_unity( source ):
 
         # Step on Environment
 
-        brain_info = self.env.step( actn , memory = None, value = None )[ self.brain_name ]
+        brain_info = self.env.step( actn )[ self.brain_name ]
 
         # Get Info
 
-        obsv = brain_info.states[0]
+        obsv = brain_info.vector_observations[0]
         rewd = brain_info.rewards[0]
         done = brain_info.local_done[0]
+
+        if (self.image_obsv): obsv = np.float32(brain_info.observations[0][0])
 
         return self.process( obsv ) , rewd , done
