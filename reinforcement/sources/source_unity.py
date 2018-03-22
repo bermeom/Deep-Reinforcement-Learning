@@ -39,7 +39,7 @@ class source_unity( source ):
     def start( self ):
 
         obsv = self.env.reset(True, None)[self.brain_name].vector_observations[0]
-        if (self.image_obsv): obsv = np.float32(self.env.reset(True, None)[self.brain_name].observations[0][0])
+        if (self.image_obsv): obsv = self.env.reset(True, None)[self.brain_name].visual_observations[0][0]
 
         return self.process( obsv )
 
@@ -64,6 +64,6 @@ class source_unity( source ):
         rewd = brain_info.rewards[0]
         done = brain_info.local_done[0]
 
-        if (self.image_obsv): obsv = np.float32(brain_info.observations[0][0])
+        if (self.image_obsv): obsv = brain_info.visual_observations[0][0]
 
         return self.process( obsv ) , rewd , done
