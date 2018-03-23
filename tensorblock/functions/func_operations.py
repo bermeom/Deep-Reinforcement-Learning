@@ -125,8 +125,21 @@ def combine_grads(tensors, extras, pars):
 
     return tf.gradients(tensors[0], normal_actor_vars, -tensors[1])
 
-### Policy Gradients Cost (PPO Discrete)
-def ppocost_continuous(tensors, extras, pars):
+### Policy Gradients Cost (PPO)
+def ppocost(tensors, extras, pars):
+
+    a_pi, o_pi = tensors[0], tensors[1]
+    actions, advantage, epsilon = tensors[2], tensors[3], tensors[4]
+
+    a_prob = tf.reduce_sum( a_pi * actions, axis = 1 )
+    o_prob = tf.reduce_sum( o_pi * actions, axis = 1 )
+    ratio  = a_prob / ( o_prob + 1e-8 )
+    cost   = -tf.reduce_mean( tf.minimum( ratio * advantage, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
+
+    return cost
+
+### Policy Gradients Cost (PPO with tf distribution)
+def ppocost_distrib(tensors, extras, pars):
 
     a_mu, a_sigma = tensors[0], tensors[1]
     o_mu, o_sigma = tensors[2], tensors[3]
@@ -137,19 +150,5 @@ def ppocost_continuous(tensors, extras, pars):
     ratio   = pi.prob( actions ) / ( oldpi.prob( actions ) + 1e-8 )
     cost    = -tf.reduce_mean( tf.minimum( ratio * advantage, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
     entropy = tf.reduce_mean( tf.reduce_mean ( pi.entropy() ) )
-
-    return cost - 0.001 * entropy
-
-### Policy Gradients Cost (PPO Continuous)
-def ppocost_discrete(tensors, extras, pars):
-
-    a_discrete, o_discrete = tensors[0], tensors[1]
-    actions, advantage, epsilon = tensors[2], tensors[3], tensors[4]
-
-    a_prob  = tf.reduce_sum( a_discrete * actions, axis = 1 )
-    o_prob  = tf.reduce_sum( o_discrete * actions, axis = 1)
-    ratio   = a_prob / ( o_prob + 1e-8 )
-    cost    = -tf.reduce_mean( tf.minimum( ratio * advantage, tf.clip_by_value( ratio, 1.- epsilon, 1. + epsilon) * advantage ) )
-    entropy = tf.reduce_mean( tf.reduce_sum( a_discrete * tf.log( a_discrete + 1e-8 ), axis = 1 ) )
 
     return cost - 0.001 * entropy

@@ -62,7 +62,7 @@ class player_PPO_1(player):
             # Actor
 
         if self.continuous:
-            self.brain.addOperation( function = tb.ops.ppocost_continuous,
+            self.brain.addOperation( function = tb.ops.ppocost_distrib,
                                      input    = [ 'Actor/Mu',
                                                   'Actor/Sigma',
                                                   'O_Mu',
@@ -73,7 +73,7 @@ class player_PPO_1(player):
                                      name     = 'ActorCost' )
 
         if not self.continuous:
-            self.brain.addOperation( function = tb.ops.ppocost_discrete,
+            self.brain.addOperation( function = tb.ops.ppocost,
                                      input    = [ 'Actor/Discrete',
                                                   'O_Discrete',
                                                   'Actions',
