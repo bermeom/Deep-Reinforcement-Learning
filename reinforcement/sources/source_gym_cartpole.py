@@ -13,7 +13,7 @@ class source_gym_cartpole( source_gym ):
         source_gym.__init__( self , 'CartPole-v0' )
 
     ### INFORMATION
-    def num_actions( self ): return self.env.action_space.shape[0]
+    def num_actions( self ): return self.env.action_space.n
 
     ### MAP KEYS
     def map_keys( self , actn ):
