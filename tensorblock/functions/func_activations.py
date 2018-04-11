@@ -18,9 +18,9 @@ def tanh( x ):
     return tf.nn.tanh( x )
 
 ### SoftPlus Activation
-def softplus( x ):
+def softplus( x, scale = 1):
 
-    return tf.nn.softplus( x )
+    return tf.nn.softplus( x ) * scale
 
 ### SoftMax Activation
 def softmax( x ):

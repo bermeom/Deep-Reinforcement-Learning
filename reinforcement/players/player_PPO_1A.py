@@ -44,8 +44,8 @@ class player_PPO_1A( player_PPO_1 ):
         Actor.addLayer( out_channels = 64 , input = 'Observation' )
         Actor.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None,               name = 'Mu')
-        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma' )
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None, name = 'Mu')
+        Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma', activation_pars = 0.1 )
         Actor.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softmax,  name = 'Discrete' )
 
         mu     = Actor.tensor( 'Mu' )
@@ -66,6 +66,6 @@ class player_PPO_1A( player_PPO_1 ):
         Old.addLayer( out_channels = 64 , input = 'Observation' )
         Old.addLayer( out_channels = 64,  name = 'Hidden' )
 
-        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None,               name = 'Mu')
-        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma' )
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = None, name = 'Mu')
+        Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softplus, name = 'Sigma', activation_pars = 0.1 )
         Old.addLayer( out_channels = self.num_actions , input = 'Hidden', activation = tb.activs.softmax,  name = 'Discrete' )
