@@ -8,12 +8,6 @@
 
 A video on these implementations is available: [YouTube](https://www.youtube.com/watch?v=cEcCHs1GGpg)
 
-## Tensorblock
-
-Tensorblock is an API to facilitate the implementation of Machine Learning Algorithms using TensorFlow: [BitBucket/TensorBlock](https://bitbucket.org/vguizilini/tensorblock/overview).  
-
-See the documentation: [TensorBlock](docs/TensorBlock.md)
-
 ## Algorithms:
 
 The Reinforcement Learning Algorithms currently implemented are:  
@@ -28,18 +22,29 @@ The Reinforcement Learning Algorithms currently implemented are:
 
 The environments currently supported are:
 
-- OpenAI's Gym 
+- OpenAI's Gym
 - OpenAI's Gym MuJoCo
 - PyGame
 - Unity Machine Learning
 
 See the documentation: [Environments](docs/Environments.md)
 
+## Tensorblock
+
+<div align="center">
+
+<img align="center" width="400" src="docs/images/tBlockDiagram.png">
+
+</div>
+<br />
+
+Tensorblock is an API to facilitate the implementation of Machine Learning Algorithms using TensorFlow: [BitBucket/TensorBlock](https://bitbucket.org/vguizilini/tensorblock/).  
+  
+See the documentation: [TensorBlock](docs/TensorBlock.md)
+
 ## Results
 
-Some Results:
-
-- [Result Comparison](statistics/comparison.md)
+In the [statistics](statistics/) folder are trained models and some graphics for each algorithm.
 
 ## Dependencies
 
@@ -57,6 +62,10 @@ Some Results:
 
 - [Bibliography](docs/Bibliography.md)
 
+## Contributions
+
+Are more than welcome!
+
 ## Acknowledgement
 
-TensorBlock is developed by Vitor Guizilini. Many thanks for his guidance and support. Also, I thank Professor Glauco Caurin and all colleagues from the Mechatronics Laboratory of the São Carlos School of Engineering, and the support from CNPq.   
+TensorBlock was developed by Vitor Guizilini. Many thanks for his guidance and support. Also, I thank Professor Glauco Caurin and all colleagues from the Mechatronics Laboratory of the São Carlos School of Engineering / University of São Paulo, and the support from CNPq.   

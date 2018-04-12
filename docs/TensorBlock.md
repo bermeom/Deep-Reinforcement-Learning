@@ -11,9 +11,24 @@ The [*execute*](../reinforcement/execute.py) file runs it all.
 
 ## Usage
 
-The algorithms are trained using the command: python execute.py source_*your_source* ... player_*your_player*  
+The algorithms are trained using the command:
+```shell
+python execute.py source_*your_source* player_*your_player*  
+```
 There are some flags that can be used:  
+```shell
 --save *your_saved_model_name*  
 --load *your_saved_model_name*  
---run (just run the saved model and do not train)  
+--run (just run and do not train)  
+```
 There are some scripts on the *reinforcement* folder, and saved trained models.
+
+## TensorBoard
+
+TensorBoard is easy to use. It is implemented in some algorithms, such as in [reinforce_2](REINFORCE.md), and can be easily reproduced in others.
+
+<div align="center">
+
+<img align="center" width="400" src="images/tensorBoard.png">
+
+</div>
