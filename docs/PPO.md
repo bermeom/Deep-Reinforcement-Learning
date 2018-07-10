@@ -3,6 +3,8 @@
 - PPO  
 	- [player_PPO_1](../reinforcement/players/player_PPO_1.py)
 	- [player_PPO_1A](../reinforcement/players/player_PPO_1A.py)
+	- [player_PPO_2](../reinforcement/players/player_PPO_2.py)
+	- [player_PPO_2A](../reinforcement/players/player_PPO_2A.py)
 
 It has been tested on the Unity Machine Learning Environments.  
 See the results on [PPO 1A Statistics](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/tree/master/statistics/PPO%201A).  
