@@ -26,6 +26,7 @@ The environments currently supported are:
 - OpenAI's Gym MuJoCo
 - PyGame
 - Unity Machine Learning
+- CARLA
 
 See the documentation: [Environments](docs/Environments.md)
 
@@ -39,7 +40,7 @@ See the documentation: [Environments](docs/Environments.md)
 <br />
 
 Tensorblock is an API to facilitate the implementation of Machine Learning Algorithms using TensorFlow: [BitBucket/TensorBlock](https://bitbucket.org/vguizilini/tensorblock/).  
-  
+
 See the documentation: [TensorBlock](docs/TensorBlock.md)
 
 ## Results
@@ -57,6 +58,7 @@ In the [statistics](statistics/) folder are trained models and some graphics for
 - MatplotLib 2.0.2
 - Unity ML 0.3
 - MuJoCo 1.50
+- CARLA 0.8.3
 
 ## Bibliography
 

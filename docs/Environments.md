@@ -2,11 +2,11 @@
 
 The suppported Environments are in the [sources](../reinforcement/sources) folder.  
 The [source.py](../reinforcement/sources/source.py) contains the parent class.  
-Currently, there are interfaces with [OpenAI's Gym](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_gym.py), [PyGame](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_pygame.py) and [Unity ML](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_unity.py).  
+Currently, there are interfaces with [OpenAI's Gym](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_gym.py), [PyGame](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_pygame.py), [Unity ML](https://github.com/NiloFreitas/Deep-Reinforcement-Learning/blob/master/reinforcement/sources/source_unity.py) and [CARLA](https://github.com/carla-simulator/carla).  
 
 The Environments in the folder are:
 
-Raw Inputs (1 dimension):  
+Vector Inputs (1 dimension):  
 
 	- Pygame
 		- Chase
@@ -21,22 +21,20 @@ Raw Inputs (1 dimension):
 	- Unity Machine Learning
 		- 3D Ball
 
-
-Raw Image Inputs (2 dimensions):  
+Image Inputs (2 dimensions):  
 
 	- Pygame
 		- Catch
 	- Gym
 		- Breakout
 		- Pong  
+	- CARLA
 
 ### Notes
 
 1) It is easy to add new environments.
 
-2) More info on Unity Envs: [Unity ML GitHub](https://github.com/Unity-Technologies/ml-agents).
-
-3) To export a Unity Env .bytes file to run the trained model on Unity:  
+2) To export a Unity Env .bytes file to run the trained model on Unity:  
 Execute this function on the algorithm when a saved trained model of the env is in _trained_models_ folder:     
 	<sub>from sources.source_unity_exporter import *  
 	export_ugraph (self.brain, "./trained_models/" + trainedmodel, envname, nnoutput)  
@@ -44,3 +42,6 @@ Execute this function on the algorithm when a saved trained model of the env is 
 	#Example with PPO and 3DBall: trainedmodel = "unity_3dball_ppo/",
 	                              envname = "3dball",
 				      nnoutput =  "Actor/Mu/MatMul" </sub>  
+
+3)  To use [CARLA](https://github.com/carla-simulator/carla) download the compiled version and put the files in the _/sources/carla/_ folder  
+    Credits to the code in _sources/carla/Environment/_:  [Gokul](https://github.com/GokulNC/Setting-Up-CARLA-RL)
