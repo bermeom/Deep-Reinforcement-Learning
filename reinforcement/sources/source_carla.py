@@ -9,13 +9,19 @@ import cv2
 ##### SOURCE CARLA
 class source_carla( source ):
 
+    continuous = False # or True
+
+    # Discrete actions (9):
+    #   int: 0:NONE, 1:TURN_LEFT, 2:TURN_RIGHT, 3:GAS, 4:BRAKE, 5:GAS_AND_TURN_LEFT,
+    #        6:GAS_AND_TURN_RIGHT, 7:BRAKE_AND_TURN_LEFT, 8:BRAKE_AND_TURN_RIGHT
+
+    # Continuous actions (3):
+    #   list: [throttle_value, steering_value, brake_value]
+
     ### __INIT__
     def __init__( self ):
 
         source.__init__( self )
-
-        self.action = [0.0, 0.0, 0.0] # throttle, steering, brake
-        self.continuous = True
 
         self.env = CarlaEnv( is_render_enabled = False,
                              num_speedup_steps = 10,
@@ -24,27 +30,35 @@ class source_carla( source ):
                              save_screens = False,
                              continuous = self.continuous )
 
+        if self.continuous: self.action = [0,0,0]
+        else: self.action = [1,0,0,0,0,0,0,0,0]
+
         def signal_handler(signal, frame):
             print('\nProgram closed!')
             sys.exit(0)
         signal.signal(signal.SIGINT, signal_handler)
 
     ### INFORMATION
-    def num_actions( self ): return 3
-    def range_actions( self ): return 1
+    def num_actions( self ):
+        if self.continuous: return 3
+        else: return 9
+
+    def range_actions( self ):
+        if self.continuous: return 1
+        else: return -1
 
     ### START SIMULATION
     def start( self ):
 
         self.env.reset()
-        observation, reward, done, _ = self.env.step(self.action)
+        observation, reward, done, _ = self.env.step( self.map_keys(self.action) )
 
         return self.process( observation['rgb_image'] )
 
     ### MOVE ONE STEP
     def move( self , actn ):
 
-        observation, reward, done, _ = self.env.step( actn )
+        observation, reward, done, _ = self.env.step( self.map_keys(actn) )
 
         return self.process( observation['rgb_image'] ), reward, done
 
@@ -54,3 +68,20 @@ class source_carla( source ):
         obsv = cv2.resize( obsv , ( 84 , 84 ) )
 
         return obsv
+
+    ### MAP KEYS
+    def map_keys( self , actn ):
+
+        if self.continuous:
+            return actn
+
+        else:
+            if actn[0] : return 0
+            if actn[1] : return 1
+            if actn[2] : return 2
+            if actn[3] : return 3
+            if actn[4] : return 4
+            if actn[5] : return 5
+            if actn[6] : return 6
+            if actn[7] : return 7
+            if actn[8] : return 8
