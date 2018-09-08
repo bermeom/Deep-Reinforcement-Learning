@@ -9,19 +9,19 @@ import cv2
 ##### SOURCE CARLA
 class source_carla( source ):
 
-    continuous = False # or True
-
-    # Discrete actions (9):
-    #   int: 0:NONE, 1:TURN_LEFT, 2:TURN_RIGHT, 3:GAS, 4:BRAKE, 5:GAS_AND_TURN_LEFT,
-    #        6:GAS_AND_TURN_RIGHT, 7:BRAKE_AND_TURN_LEFT, 8:BRAKE_AND_TURN_RIGHT
-
-    # Continuous actions (3):
-    #   list: [throttle_value, steering_value, brake_value]
-
     ### __INIT__
     def __init__( self ):
 
         source.__init__( self )
+
+        self.continuous = False
+
+        # Discrete actions (9):
+        #   int: 0:NONE, 1:TURN_LEFT, 2:TURN_RIGHT, 3:GAS, 4:BRAKE, 5:GAS_AND_TURN_LEFT,
+        #        6:GAS_AND_TURN_RIGHT, 7:BRAKE_AND_TURN_LEFT, 8:BRAKE_AND_TURN_RIGHT
+
+        # Continuous actions (3):
+        #   list: [throttle_value, steering_value, brake_value]
 
         self.env = CarlaEnv( is_render_enabled = False,
                              num_speedup_steps = 10,
@@ -29,9 +29,6 @@ class source_carla( source ):
                              cameras = ['SceneFinal', 'Depth', 'SemanticSegmentation'],
                              save_screens = False,
                              continuous = self.continuous )
-
-        if self.continuous: self.action = [0,0,0]
-        else: self.action = [1,0,0,0,0,0,0,0,0]
 
         def signal_handler(signal, frame):
             print('\nProgram closed!')
@@ -50,17 +47,29 @@ class source_carla( source ):
     ### START SIMULATION
     def start( self ):
 
+        self.action = [1,0,0,0,0,0,0,0,0]
+        if self.continuous: self.action = [0,0,0]
+
         self.env.reset()
+
         observation, reward, done, _ = self.env.step( self.map_keys(self.action) )
 
-        return self.process( observation['rgb_image'] )
+        car_speed        = observation['forward_speed']
+        car_acceleration = observation['acceleration']
+        rgb_image        = observation['rgb_image']
+
+        return self.process( rgb_image )
 
     ### MOVE ONE STEP
     def move( self , actn ):
 
         observation, reward, done, _ = self.env.step( self.map_keys(actn) )
 
-        return self.process( observation['rgb_image'] ), reward, done
+        car_speed        = observation['forward_speed']
+        car_acceleration = observation['acceleration']
+        rgb_image        = observation['rgb_image']
+
+        return self.process( rgb_image ), reward, done
 
     ### PROCESS OBSERVATION
     def process( self , obsv ):

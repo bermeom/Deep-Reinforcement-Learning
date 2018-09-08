@@ -1,0 +1,12 @@
+__pycache__/
+
+reinforcement/unity-environment.log
+reinforcement/auxiliar/EpisodeLengths.txt
+reinforcement/auxiliar/EpisodeRewards.txt
+reinforcement/auxiliar/LenghtsPlot.png
+reinforcement/auxiliar/RewardsPlot.png
+reinforcement/sources/carla/CarlaLogs.txt
+reinforcement/sources/carla/CarlaUE4.sh
+reinforcement/sources/carla/CarlaUE4/
+reinforcement/sources/carla/Engine/
+reinforcement/sources/carla/PythonClient/
