@@ -1,3 +1,8 @@
+[DEPRECATED]
+THIS REPOSITORY IS DEPRECATED, PLEASE CONSIDER USING:  
+https://github.com/NiloFreitas/Deep-RL-and-IL
+
+
 # Deep Reinforcement Learning
 
 ## Background
